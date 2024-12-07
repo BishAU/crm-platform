@@ -40,21 +40,38 @@ platform-name/
 
 ## Running Services
 
+### Cold Start Procedure
+Before starting services, always ensure ports are free:
+```bash
+# Clean up all ports (both prod and dev)
+bash /home/bish/Downloads/port-cleanup.sh
+
+# Clean only production ports
+bash /home/bish/Downloads/port-cleanup.sh prod
+
+# Clean only development ports
+bash /home/bish/Downloads/port-cleanup.sh dev
+```
+
 ### Production
 ```bash
-# Start all production services
+# Clean ports and start all production services
+bash /home/bish/Downloads/port-cleanup.sh prod && \
 pm2 start /home/bish/Downloads/ecosystem.global.config.js
 
 # Start specific service
+bash /home/bish/Downloads/port-cleanup.sh prod && \
 pm2 start /home/bish/Downloads/ecosystem.global.config.js --only vcc
 ```
 
 ### Development
 ```bash
-# Start all development services
+# Clean ports and start all development services
+bash /home/bish/Downloads/port-cleanup.sh dev && \
 pm2 start /home/bish/Downloads/ecosystem.development.config.js
 
 # Start specific service
+bash /home/bish/Downloads/port-cleanup.sh dev && \
 pm2 start /home/bish/Downloads/ecosystem.development.config.js --only vcc-dev
 ```
 
