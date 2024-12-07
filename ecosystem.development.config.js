@@ -5,7 +5,11 @@ module.exports = {
       name: 'vcc-dev',
       cwd: '/home/bish/Downloads/vcc-platform',
       script: 'npm',
-      args: 'run dev',
+      args: 'run start:dev',
+      watch: ['src'],
+      ignore_watch: ['node_modules', 'dist'],
+      max_restarts: 10,
+      min_uptime: '5s',
       env: {
         NODE_ENV: 'development',
         PORT: 3001
