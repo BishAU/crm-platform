@@ -1,14 +1,14 @@
 module.exports = {
   apps: [
-    // VCC Platform - Port 3000
+    // VCC Platform - Development Port 3001
     {
-      name: 'vcc',
+      name: 'vcc-dev',
       cwd: '/home/bish/Downloads/vcc-platform',
-      script: 'node',
-      args: 'dist/server.js',
+      script: 'npm',
+      args: 'run dev',
       env: {
-        PORT: 3000,
-        NODE_ENV: 'production'
+        NODE_ENV: 'development',
+        PORT: 3001
       },
       instances: 1,
       exec_mode: 'fork',
@@ -20,15 +20,15 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     },
     
-    // CRM Platform - Port 4000
+    // CRM Platform - Development Port 4001
     {
-      name: 'crm',
+      name: 'crm-dev',
       cwd: '/home/bish/Downloads/crm-platform',
       script: 'npm',
-      args: 'start',
+      args: 'run dev',
       env: {
-        PORT: 4000,
-        NODE_ENV: 'production'
+        NODE_ENV: 'development',
+        PORT: 4001
       },
       instances: 1,
       exec_mode: 'fork',
@@ -40,15 +40,15 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     },
     
-    // WWW Platform - Port 5000
+    // WWW Platform - Development Port 5001
     {
-      name: 'www',
+      name: 'www-dev',
       cwd: '/home/bish/Downloads/myinvoices-www',
       script: 'npm',
-      args: 'start',
+      args: 'run dev',
       env: {
-        PORT: 5000,
-        NODE_ENV: 'production'
+        NODE_ENV: 'development',
+        PORT: 5001
       },
       instances: 1,
       exec_mode: 'fork',
@@ -60,15 +60,15 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     },
 
-    // Raffle Platform - Port 6000
+    // Raffle Platform - Development Port 6001
     {
-      name: 'raffle',
-      cwd: '/home/bish/Downloads/raffle-platform',
+      name: 'raffle-dev',
+      cwd: '/home/bish/Downloads/raffle',
       script: 'npm',
-      args: 'start',
+      args: 'run dev',
       env: {
-        PORT: 6000,
-        NODE_ENV: 'production'
+        NODE_ENV: 'development',
+        PORT: 6001
       },
       instances: 1,
       exec_mode: 'fork',
@@ -80,4 +80,4 @@ module.exports = {
       log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
     }
   ]
-};
+}
