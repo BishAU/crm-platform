@@ -41,7 +41,14 @@ platform-name/
 ## Running Services
 
 ### Cold Start Procedure
-Before starting services, always ensure ports are free:
+Before starting services, follow this sequence:
+
+1. Stop all PM2 processes:
+```bash
+pm2 delete all
+```
+
+2. Clean up ports:
 ```bash
 # Clean up all ports (both prod and dev)
 bash /home/bish/Downloads/port-cleanup.sh
@@ -51,6 +58,36 @@ bash /home/bish/Downloads/port-cleanup.sh prod
 
 # Clean only development ports
 bash /home/bish/Downloads/port-cleanup.sh dev
+```
+
+3. Reset PM2 saved state:
+```bash
+pm2 save --force
+```
+
+4. Build projects (in each platform directory):
+```bash
+cd platform-directory
+npm run build
+```
+
+5. Start services:
+```bash
+# Start all production services
+pm2 start /home/bish/Downloads/ecosystem.global.config.js
+
+# Or start specific service
+pm2 start /home/bish/Downloads/ecosystem.global.config.js --only vcc
+```
+
+6. Verify services:
+```bash
+pm2 status
+pm2 logs
+curl http://localhost:3000  # Test VCC platform
+curl http://localhost:4000  # Test CRM platform
+curl http://localhost:5000  # Test WWW platform
+curl http://localhost:6000  # Test Raffle platform
 ```
 
 ### Production
