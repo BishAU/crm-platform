@@ -4,7 +4,8 @@ module.exports = {
     {
       name: 'vcc',
       cwd: '/home/bish/Downloads/vcc-platform',
-      script: 'dist/server.js',
+      script: 'npm',
+      args: 'run preview',
       env: {
         PORT: 3000,
         NODE_ENV: 'production'
