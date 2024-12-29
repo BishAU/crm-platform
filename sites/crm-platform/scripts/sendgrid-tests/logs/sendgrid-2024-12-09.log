@@ -1,0 +1,348 @@
+{
+  "timestamp": "2024-12-09T11:50:40.779Z",
+  "level": "INFO",
+  "message": "Starting SendGrid test suite"
+}
+{
+  "timestamp": "2024-12-09T11:50:40.811Z",
+  "level": "INFO",
+  "message": "Starting test: Simple Email"
+}
+{
+  "timestamp": "2024-12-09T11:50:43.720Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Simple Email"
+}
+{
+  "timestamp": "2024-12-09T11:50:43.725Z",
+  "level": "INFO",
+  "message": "Starting test: Template Email"
+}
+{
+  "timestamp": "2024-12-09T11:50:44.511Z",
+  "level": "ERROR",
+  "message": "❌ Test failed: Template Email",
+  "error": "Forbidden",
+  "details": {
+    "errors": [
+      {
+        "field": null,
+        "message": "access forbidden"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T11:50:44.516Z",
+  "level": "INFO",
+  "message": "Starting test: Bulk Email"
+}
+{
+  "timestamp": "2024-12-09T11:50:45.389Z",
+  "level": "ERROR",
+  "message": "❌ Test failed: Bulk Email",
+  "error": "Bad Request",
+  "details": {
+    "errors": [
+      {
+        "message": "The template_id is required when using dynamic templates",
+        "field": "template_id",
+        "help": "http://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html#message.template_id"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T11:50:45.391Z",
+  "level": "INFO",
+  "message": "Starting test: Error Handling"
+}
+{
+  "timestamp": "2024-12-09T11:50:46.295Z",
+  "level": "INFO",
+  "message": "Successfully caught invalid email error",
+  "error": "Bad Request"
+}
+{
+  "timestamp": "2024-12-09T11:50:46.308Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Error Handling"
+}
+{
+  "timestamp": "2024-12-09T11:50:46.316Z",
+  "level": "INFO",
+  "message": "Starting test: Contact List"
+}
+{
+  "timestamp": "2024-12-09T11:50:47.675Z",
+  "level": "ERROR",
+  "message": "❌ Test failed: Contact List",
+  "error": "Forbidden",
+  "details": {
+    "errors": [
+      {
+        "message": "access forbidden. please ensure you have the correct scopes defined. see https://docs.sendgrid.com/api-reference/how-to-use-the-sendgrid-v3-api/authorization#api-key-permissions-list"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T11:50:47.679Z",
+  "level": "INFO",
+  "message": "Test suite completed",
+  "passed": 2,
+  "failed": 3,
+  "total": 5
+}
+{
+  "timestamp": "2024-12-09T11:51:26.046Z",
+  "level": "INFO",
+  "message": "Starting SendGrid basic test suite"
+}
+{
+  "timestamp": "2024-12-09T11:51:26.051Z",
+  "level": "INFO",
+  "message": "Starting test: Simple Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:26.997Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Simple Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:27.002Z",
+  "level": "INFO",
+  "message": "Starting test: Formatted Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:27.889Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Formatted Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:27.891Z",
+  "level": "INFO",
+  "message": "Starting test: Personalized Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:28.340Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Personalized Email"
+}
+{
+  "timestamp": "2024-12-09T11:51:28.341Z",
+  "level": "INFO",
+  "message": "Starting test: Error Handling"
+}
+{
+  "timestamp": "2024-12-09T11:51:28.791Z",
+  "level": "INFO",
+  "message": "Successfully caught invalid email error",
+  "error": "Bad Request"
+}
+{
+  "timestamp": "2024-12-09T11:51:28.795Z",
+  "level": "INFO",
+  "message": "✅ Test passed: Error Handling"
+}
+{
+  "timestamp": "2024-12-09T11:51:28.796Z",
+  "level": "INFO",
+  "message": "Test suite completed",
+  "passed": 4,
+  "failed": 0,
+  "total": 4
+}
+{
+  "timestamp": "2024-12-09T11:53:11.124Z",
+  "level": "INFO",
+  "message": "Fetching SendGrid templates"
+}
+{
+  "timestamp": "2024-12-09T11:53:11.953Z",
+  "level": "ERROR",
+  "message": "Failed to fetch templates:",
+  "error": "Forbidden",
+  "details": {
+    "errors": [
+      {
+        "field": null,
+        "message": "access forbidden"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T11:57:04.519Z",
+  "level": "INFO",
+  "message": "Fetching SendGrid dynamic templates"
+}
+{
+  "timestamp": "2024-12-09T11:57:05.562Z",
+  "level": "ERROR",
+  "message": "Failed to fetch templates:",
+  "error": "Forbidden",
+  "details": {
+    "errors": [
+      {
+        "field": null,
+        "message": "access forbidden"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T12:05:56.985Z",
+  "level": "INFO",
+  "message": "Fetching SendGrid marketing templates"
+}
+{
+  "timestamp": "2024-12-09T12:05:58.253Z",
+  "level": "ERROR",
+  "message": "Failed to fetch marketing templates:",
+  "error": "Forbidden",
+  "details": {
+    "errors": [
+      {
+        "field": null,
+        "message": "access forbidden"
+      }
+    ]
+  }
+}
+{
+  "timestamp": "2024-12-09T12:07:54.366Z",
+  "level": "INFO",
+  "message": "Fetching SendGrid marketing templates"
+}
+{
+  "0": {
+    "id": "e4fdf8de-f2d7-4466-9385-5a906250cf91",
+    "name": "Duplicate: Black Friday Deal Email Template",
+    "updated_at": "2024-12-09T11:55:35Z"
+  },
+  "timestamp": "2024-12-09T12:07:55.297Z",
+  "level": "INFO",
+  "message": "Found 1 marketing templates:"
+}
+{
+  "timestamp": "2024-12-09T12:08:22.064Z",
+  "level": "INFO",
+  "message": "Sending test email using marketing template"
+}
+{
+  "timestamp": "2024-12-09T12:08:23.645Z",
+  "level": "INFO",
+  "message": "✅ Successfully sent template email"
+}
+{
+  "timestamp": "2024-12-09T12:10:17.511Z",
+  "level": "INFO",
+  "message": "Fetching all templates..."
+}
+{
+  "timestamp": "2024-12-09T12:10:18.732Z",
+  "level": "INFO",
+  "message": "Found 0 templates:"
+}
+{
+  "timestamp": "2024-12-09T12:11:31.543Z",
+  "level": "INFO",
+  "message": "Fetching design templates..."
+}
+{
+  "0": {
+    "id": "e4fdf8de-f2d7-4466-9385-5a906250cf91",
+    "name": "Duplicate: Black Friday Deal Email Template",
+    "generate_plain_content": true,
+    "thumbnail_url": "//us-east-2-production-thumbnail-bucket.s3.amazonaws.com/7161663331cfecfb1db434bb856284e2aac17cf99a99e5f0f06143e2df51d615.png",
+    "subject": "Black Friday Deals End TONIGHT",
+    "created_at": "2024-12-05T03:03:53Z",
+    "updated_at": "2024-12-09T11:55:35Z",
+    "editor": "code",
+    "categories": [
+      "Black Friday",
+      "Discount",
+      "Sale",
+      "Travel"
+    ]
+  },
+  "timestamp": "2024-12-09T12:11:32.458Z",
+  "level": "INFO",
+  "message": "Found 1 designs:"
+}
+{
+  "timestamp": "2024-12-09T12:14:03.969Z",
+  "level": "INFO",
+  "message": "Creating dynamic template..."
+}
+{
+  "timestamp": "2024-12-09T12:14:05.274Z",
+  "level": "INFO",
+  "message": "Created template:",
+  "templateId": "d-ee76fa7631d946e19e2ba832cdad0bdb"
+}
+{
+  "timestamp": "2024-12-09T12:14:06.305Z",
+  "level": "INFO",
+  "message": "Created template version:",
+  "id": "bbcb8316-8a3b-49a8-b224-831307928790",
+  "template_id": "d-ee76fa7631d946e19e2ba832cdad0bdb",
+  "active": 1,
+  "name": "Version 1",
+  "html_content": "\n<!DOCTYPE html>\n<html>\n<head>\n    <title>Clean Ocean Special Offer</title>\n</head>\n<body style=\"font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4;\">\n    <div style=\"max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);\">\n        <header style=\"text-align: center; padding: 20px 0;\">\n            <h1 style=\"color: #2563eb;\">Clean Ocean</h1>\n        </header>\n        \n        <main>\n            <h2>Hello {{first_name}},</h2>\n            \n            <p>We're excited to offer you a special deal from {{company_name}}!</p>\n            \n            <div style=\"background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n                <h3 style=\"color: #2563eb; margin-top: 0;\">Your Special Offer</h3>\n                <p>Use code: <strong>{{discount_code}}</strong></p>\n                <p>Valid until: {{expiry_date}}</p>\n            </div>\n            \n            <p>Don't miss out on this exclusive opportunity!</p>\n        </main>\n        \n        <footer style=\"margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #666;\">\n            <p>© {{company_name}} 2024</p>\n            <p><a href=\"{{unsubscribe_url}}\" style=\"color: #666;\">Unsubscribe</a></p>\n        </footer>\n    </div>\n</body>\n</html>",
+  "plain_content": "***********\nClean Ocean\n***********\n\n---------------------\nHello {{first_name}},\n---------------------\n\nWe're excited to offer you a special deal from {{company_name}}!\n\nYour Special Offer\n------------------\n\nUse code: *{{discount_code}}*\n\nValid until: {{expiry_date}}\n\nDon't miss out on this exclusive opportunity!\n\n© {{company_name}} 2024\n\nUnsubscribe ( {{unsubscribe_url}} )",
+  "generate_plain_content": true,
+  "subject": "Special Offer from Clean Ocean",
+  "editor": "code",
+  "thumbnail_url": "//us-east-2-production-thumbnail-bucket.s3.amazonaws.com/bd28cc0449082c5b617211cc8de739202934826c7aeaa6ce8e081280fa081f23.png"
+}
+{
+  "0": "d",
+  "1": "-",
+  "2": "e",
+  "3": "e",
+  "4": "7",
+  "5": "6",
+  "6": "f",
+  "7": "a",
+  "8": "7",
+  "9": "6",
+  "10": "3",
+  "11": "1",
+  "12": "d",
+  "13": "9",
+  "14": "4",
+  "15": "6",
+  "16": "e",
+  "17": "1",
+  "18": "9",
+  "19": "e",
+  "20": "2",
+  "21": "b",
+  "22": "a",
+  "23": "8",
+  "24": "3",
+  "25": "2",
+  "26": "c",
+  "27": "d",
+  "28": "a",
+  "29": "d",
+  "30": "0",
+  "31": "b",
+  "32": "d",
+  "33": "b",
+  "timestamp": "2024-12-09T12:14:06.310Z",
+  "level": "INFO",
+  "message": "Template is ready to use with ID:"
+}
+{
+  "timestamp": "2024-12-09T12:14:56.907Z",
+  "level": "INFO",
+  "message": "Sending test email using dynamic template"
+}
+{
+  "timestamp": "2024-12-09T12:14:58.172Z",
+  "level": "INFO",
+  "message": "✅ Successfully sent template email"
+}

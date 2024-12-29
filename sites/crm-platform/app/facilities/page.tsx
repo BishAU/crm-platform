@@ -1,0 +1,172 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import DataGrid from '../components/DataGrid';
+
+interface Facility {
+  id: string;
+  name: string;
+  type: string;
+  sector: string;
+  latitude: number;
+  longitude: number;
+  postcode: string;
+  regionType: string;
+  suburb: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+import AuthenticatedLayout from '../components/AuthenticatedLayout';
+
+export default function FacilitiesPage() {
+  const [facilities, setFacilities] = useState<Facility[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const fetchFacilities = async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: params.page.toString(),
+        limit: params.limit.toString(),
+        ...(params.search && { search: params.search }),
+        ...(params.sortBy && { sortBy: params.sortBy }),
+        ...(params.sortOrder && { sortOrder: params.sortOrder })
+      });
+
+      const response = await fetch(`/api/facilities?${queryParams}`);
+      const data = await response.json();
+      setFacilities(data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        ...data.pagination
+      }));
+    } catch (error) {
+      console.error('Error fetching facilities:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFacilities({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: searchTerm,
+      sortBy,
+      sortOrder
+    });
+  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
+
+  const handleSave = async (updatedRecord: Record<string, any>) => {
+    try {
+      const response = await fetch(`/api/facilities/${updatedRecord.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedRecord),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update facility');
+      }
+
+      // Refresh the current page
+      fetchFacilities({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchTerm,
+        sortBy,
+        sortOrder
+      });
+    } catch (error) {
+      console.error('Error updating facility:', error);
+      throw error;
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPagination(prev => ({
+      ...prev,
+      page: 1 // Reset to first page on new search
+    }));
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSortBy(field);
+    setSortOrder(order);
+  };
+
+  const columns = [
+    { field: 'name', headerName: 'Name', isPrimary: true },
+    { field: 'type', headerName: 'Type' },
+    { field: 'sector', headerName: 'Sector' },
+    { field: 'latitude', headerName: 'Latitude' },
+    { field: 'longitude', headerName: 'Longitude' },
+    { field: 'postcode', headerName: 'Postcode' },
+    { field: 'regionType', headerName: 'Region Type' },
+    { field: 'suburb', headerName: 'Suburb' },
+    { field: 'createdAt', headerName: 'Created At', active: false },
+    { field: 'updatedAt', headerName: 'Updated At', active: false },
+    { field: 'id', headerName: 'ID', active: false },
+  ];
+
+  if (loading && !facilities.length) {
+    return <div className="p-8">Loading...</div>;
+  }
+
+  return (
+    <AuthenticatedLayout>
+      <div className="p-8">
+      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Facilities</h1>
+      <DataGrid
+        rows={facilities}
+        columns={columns}
+        entityType="facility"
+        onSave={handleSave}
+        loading={loading}
+        pagination={{
+          page: pagination.page,
+          pageSize: pagination.limit,
+          totalPages: pagination.totalPages,
+          totalItems: pagination.total
+        }}
+        onPageChange={handlePageChange}
+        onSearch={handleSearch}
+        onSort={handleSort}
+      />
+      </div>
+    </AuthenticatedLayout>
+  );
+}

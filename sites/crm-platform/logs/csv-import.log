@@ -1,0 +1,28 @@
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:12:04.883Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:15:52.907Z"}
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:15:54.009Z"}
+{"level":"info","message":"Processing CSV file: outfalls.csv","timestamp":"2024-12-19T10:17:18.002Z"}
+{"level":"info","message":"Processing CSV file: water_authorities.csv","timestamp":"2024-12-19T10:17:18.099Z"}
+{"level":"info","message":"Processing CSV file: indigenous_communities.csv","timestamp":"2024-12-19T10:17:18.101Z"}
+{"level":"info","message":"Processing CSV file: politicians.csv","timestamp":"2024-12-19T10:17:18.102Z"}
+{"level":"info","message":"Processing CSV file: facilities.csv","timestamp":"2024-12-19T10:17:18.104Z"}
+{"level":"info","message":"Processing CSV file: outfall_observations.csv","timestamp":"2024-12-19T10:17:18.113Z"}
+{"level":"info","message":"Processing CSV file: persons.csv","timestamp":"2024-12-19T10:17:18.114Z"}
+{"level":"error","message":"Error processing indigenous_communities.csv: Missing required fields for IndigenousCommunity: name, region, contact, email","timestamp":"2024-12-19T10:17:18.648Z"}
+{"level":"error","message":"Error processing outfalls.csv: Missing required fields for Outfall: name, location, type, status","timestamp":"2024-12-19T10:17:18.662Z"}
+{"level":"error","message":"Error processing facilities.csv: Missing required fields for Facility: name, type, location, contact, email","timestamp":"2024-12-19T10:17:18.685Z"}
+{"level":"error","message":"Error processing outfall_observations.csv: Missing required fields for OutfallObservation: outfallId, observedBy, date, description, status","timestamp":"2024-12-19T10:17:18.700Z"}
+{"level":"error","message":"Error processing water_authorities.csv: Missing required fields for WaterAuthority: name, region, contact, email","timestamp":"2024-12-19T10:17:18.707Z"}
+{"level":"error","message":"Error processing politicians.csv: Missing required fields for Politician: name, position, party, region, email","timestamp":"2024-12-19T10:17:18.733Z"}
+{"level":"error","message":"Error processing persons.csv: Missing required fields for Person: name, email, password, role, organization","timestamp":"2024-12-19T10:17:18.747Z"}
+{"level":"info","message":"Processing CSV file: outfalls.csv","timestamp":"2024-12-19T10:17:34.973Z"}
+{"level":"error","message":"Error processing outfalls.csv: Missing required fields for Outfall: name, location, type, status","timestamp":"2024-12-19T10:17:35.021Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:18:44.897Z"}
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:18:47.162Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:19:38.355Z"}
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:19:40.073Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:21:12.258Z"}
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:21:13.746Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:22:02.145Z"}
+{"level":"info","message":"Watching for CSV files in /home/bish/Downloads/sites/crm-platform/public/csv-imports","timestamp":"2024-12-19T10:22:04.114Z"}
+{"level":"info","message":"SIGINT received. Shutting down gracefully...","timestamp":"2024-12-19T10:22:49.909Z"}
