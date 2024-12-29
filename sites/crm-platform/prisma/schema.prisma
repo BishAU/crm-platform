@@ -1,0 +1,265 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Outfall {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authority        String?
+  contact          String?
+  contact_email    String?
+  contact_name     String?
+  indigenousNation String?
+  landCouncil      String?
+  latitude         Float?
+  longitude        Float?
+  state            String?
+  type             String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now())
+  outfallName      String            @unique @map("name")
+  postcodes        OutfallPostcode[]
+
+  @@map("outfalls")
+}
+
+model OutfallPostcode {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outfallId String   @db.Uuid
+  postcode  String
+  radius    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  outfall   Outfall  @relation(fields: [outfallId], references: [id], onDelete: Cascade)
+
+  @@unique([outfallId, postcode, radius])
+  @@map("outfall_postcodes")
+}
+
+model OutfallObservation {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outfallId   String   @db.Uuid
+  observedBy  String?
+  date        DateTime
+  description String?
+  status      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("outfall_observations")
+}
+
+model Person {
+  id                                   String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  abn                                  String?
+  address1                             String?
+  annualReportPreparedAndTabled        String?
+  annualReports                        String?
+  auditor                              String?
+  budgetDocumentation                  String?
+  city                                 String?
+  classification                       String?
+  company                              String?
+  country                              String?
+  createAt                             String?
+  creationDate                         String?
+  dob                                  String?
+  description                          String?
+  email                                String?         @unique
+  establishedByUnder                   String?
+  establishedByUnderMoreInfo           String?
+  firstName                            String?
+  gfsFunctionSectorReported            String?
+  gfsSectorClassification              String?
+  headOfficeCountry                    String?
+  headOfficePostcode                   String?
+  headOfficeState                      String?
+  headOfficeStreetAddress              String?
+  headOfficeSuburb                     String?
+  lastName                             String?
+  materiality                          String?
+  newsletter                           String?
+  optInStatus                          String?
+  organisation                         String?
+  organistion                          String?
+  psActBody                            String?
+  phone                                String?
+  phoneNumber                          String?
+  physicalAddress                      String?
+  physicalAddressState                 String?
+  portfolio                            String?
+  portfolioDept                        String?
+  postcode                             String?
+  relationship                         String?
+  state                                String?
+  strategicCorporateOrganisationalPlan String?
+  surname                              String?
+  title                                String?
+  typeOfBody                           String?
+  websiteAddress                       String?
+  createdAt                            DateTime        @default(now())
+  updatedAt                            DateTime        @default(now())
+  fullName                             String?         @map("name")
+  assignedTickets                      SupportTicket[]
+
+  @@map("people")
+}
+
+model Politician {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  address        String?
+  city           String?
+  eoAddress      String?
+  electorate     String?
+  email          String?  @unique
+  fax            String?
+  firstName      String?
+  gender         String?
+  house          String?
+  lastName       String?
+  lastUpdated    String?
+  minAddress     String?
+  minPhone       String?
+  minister       String?
+  poAddress      String?
+  poStcode       String?
+  party          String?
+  partyAbb       String?
+  phone          String?
+  photo          String?
+  politicalParty String?
+  position       String?
+  preferredName  String?
+  salutation     String?
+  state          String?
+  surname        String?
+  title          String?
+  web            String?
+  images         String?
+  fullName       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
+  politicianName String?  @map("name")
+
+  @@map("politicians")
+}
+
+model WaterAuthority {
+  id                              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  associatedIndigenousCommunities String?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @default(now())
+  authorityName                   String   @unique @map("name")
+  activeStatus                    Boolean  @default(true)
+
+  @@map("water_authorities")
+}
+
+model IndigenousCommunity {
+  id                              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  associatedIndigenousCommunities String?
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @default(now())
+  authorityName                   String   @unique @map("name")
+
+  @@map("indigenous_communities")
+}
+
+model LandCouncil {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email            String?
+  lgas             String?
+  numberOfOutfalls String?
+  outfalls         String?
+  phone            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+  landCouncilName  String   @unique @map("name")
+
+  @@map("land_councils")
+}
+
+model Customer {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String?  @unique
+  phone     String?
+  company   String?
+  address   String?
+  city      String?
+  state     String?
+  postcode  String?
+  country   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("customers")
+}
+
+model OutfallType {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("outfall_types")
+}
+
+model Facility {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  latitude     Float?
+  longitude    Float?
+  postcode     String?
+  regionType   String?
+  sector       String?
+  suburb       String?
+  type         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  facilityName String   @unique @map("name")
+
+  @@map("facilities")
+}
+
+model SupportTicket {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title        String
+  description  String?
+  status       String   @default("open")
+  priority     String   @default("medium")
+  assignedToId String?  @db.Uuid
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  assignedTo   Person?  @relation(fields: [assignedToId], references: [id])
+
+  @@map("support_tickets")
+}
+
+model User {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String   @unique
+  password  String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model MarketingList {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  description String?
+  creator     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("marketing_lists")
+}
