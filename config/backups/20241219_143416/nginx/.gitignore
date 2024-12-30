@@ -1,0 +1,24 @@
+# Nginx logs
+*.log
+access.log
+error.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Sensitive data
+.htpasswd
+*.key
+*.pem
+*.crt
+*.csr
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
