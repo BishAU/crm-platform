@@ -1,1 +1,1 @@
-export type { Field } from '@/types/form';
+export type { Field } from 'types/form';

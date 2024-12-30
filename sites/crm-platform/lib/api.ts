@@ -12,17 +12,26 @@ type HandlerFunction = (
 export function createHandler(handler: HandlerFunction, requireAuth = true) {
   return async function(
     req: NextRequest,
-    context: RouteSegment<IdParam>
+    context: IdParam | IdParam[] | undefined
   ): Promise<NextResponse> {
     try {
+      if (!context) {
+        return new NextResponse('Missing context', { status: 400 });
+      }
+      
+      const params = Array.isArray(context) ? context[0] : context;
+      if (!params) {
+        return new NextResponse('Missing required parameters', { status: 400 });
+      }
+      
       if (requireAuth) {
         const session = await getServerSession(authOptions);
         if (!session) {
           return new NextResponse('Unauthorized', { status: 401 });
         }
-        return await handler(req, context.params, session);
+        return await handler(req, params, session);
       }
-      return await handler(req, context.params);
+      return await handler(req, params);
     } catch (error) {
       console.error('API Error:', error);
       return new NextResponse('Internal Server Error', { status: 500 });

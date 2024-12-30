@@ -3559,3 +3559,31 @@
 2024-12-29T12:57:36: 
 2024-12-29T12:57:36:  ✓ Starting...
 2024-12-29T12:57:36:  ✓ Ready in 911ms
+2024-12-31T07:38:19: 
+2024-12-31T07:38:19: > crm-platform@0.1.0 start
+2024-12-31T07:38:19: > next start -p 3100
+2024-12-31T07:38:19: 
+2024-12-31T07:38:20:   ▲ Next.js 14.2.22
+2024-12-31T07:38:20:   - Local:        http://localhost:3100
+2024-12-31T07:38:20: 
+2024-12-31T07:38:20:  ✓ Starting...
+2024-12-31T07:38:21:  ✓ Ready in 999ms
+2024-12-31T07:43:27: prisma:error 
+2024-12-31T07:43:27: Invalid `prisma.$queryRaw()` invocation:
+2024-12-31T07:43:27: 
+2024-12-31T07:43:27: 
+2024-12-31T07:43:27: Raw query failed. Code: `42P01`. Message: `relation "$1" does not exist`
+2024-12-31T07:43:31: prisma:error 
+2024-12-31T07:43:31: Invalid `prisma.$queryRaw()` invocation:
+2024-12-31T07:43:31: 
+2024-12-31T07:43:31: 
+2024-12-31T07:43:31: Raw query failed. Code: `42P01`. Message: `relation "$1" does not exist`
+2024-12-31T07:51:53: 
+2024-12-31T07:51:53: > crm-platform@0.1.0 start
+2024-12-31T07:51:53: > next start -p 3100
+2024-12-31T07:51:53: 
+2024-12-31T07:51:56:   ▲ Next.js 14.2.22
+2024-12-31T07:51:56:   - Local:        http://localhost:3100
+2024-12-31T07:51:56: 
+2024-12-31T07:51:56:  ✓ Starting...
+2024-12-31T07:51:57:  ✓ Ready in 3.9s

@@ -30,8 +30,6 @@ export interface SegmentStats {
 
 export interface Recipient {
   email: string;
-  firstName?: string;
-  lastName?: string;
   [key: string]: any;
 }
 
@@ -77,18 +75,6 @@ export const AVAILABLE_FIELDS: FilterField[] = [
     label: 'Email',
     type: 'string',
     description: 'Recipient\'s email address'
-  },
-  {
-    name: 'firstName',
-    label: 'First Name',
-    type: 'string',
-    description: 'Recipient\'s first name'
-  },
-  {
-    name: 'lastName',
-    label: 'Last Name',
-    type: 'string',
-    description: 'Recipient\'s last name'
   },
   {
     name: 'country',
