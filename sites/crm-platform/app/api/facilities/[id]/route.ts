@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
+  request: NextRequest,
+  params: any
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
     const facility = await prisma.facility.findUnique({
       where: {
         id: params.id,
@@ -13,46 +14,45 @@ export async function GET(
     });
 
     if (!facility) {
-      return new NextResponse('Facility not found', { status: 404 });
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('Facility'), 404);
     }
 
-    return NextResponse.json(facility);
-  } catch (error) {
-    console.error('Error fetching facility:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(facility);
+  });
 }
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json();
-
-    // Ensure facility name is unique if provided
-    if (body.facilityName) {
-      const existingFacility = await prisma.facility.findUnique({
-        where: {
-          facilityName: body.facilityName,
-        },
-      });
-
-      if (existingFacility && existingFacility.id !== params.id) {
-        return new NextResponse('Facility name already in use', { status: 400 });
-      }
-    }
+  request: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
+    const body = await req.json();
 
     const updatedFacility = await prisma.facility.update({
       where: {
-        id: params.id,
+        id: context.params.id,
       },
-      data: body,
+      data: {
+        ...body,
+        creatorId: session.user.id,
+      },
     });
 
-    return NextResponse.json(updatedFacility);
-  } catch (error) {
-    console.error('Error updating facility:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(updatedFacility);
+  });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: { id: string } }
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
+    await prisma.facility.delete({
+      where: {
+        id: context.params.id,
+      },
+    });
+
+    return new Response(null, { status: 204 });
+  });
 }

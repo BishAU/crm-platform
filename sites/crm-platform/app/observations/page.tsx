@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '../components/DataGrid';
-import DetailView from '../components/DetailView';
+import DataGrid from '@components/DataGrid';
+import DetailView from '@components/DetailView';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface Observation {
   id: string;
@@ -11,8 +13,6 @@ interface Observation {
   description: string;
   location: string;
 }
-
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
 
 export default function ObservationsPage() {
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function ObservationsPage() {
     fetchObservations();
   }, []);
 
-  const columns = [
+  const defaultColumns = [
     { field: 'id', headerName: 'ID', isPrimary: true, active: false, renderCell: (value: any) => {
       return <a href={`/observations/${value.id}`} className="text-ocean-600 hover:text-ocean-800">{value.id}</a>
     } },
@@ -47,6 +47,14 @@ export default function ObservationsPage() {
     { field: 'description', headerName: 'Description', active: false },
     { field: 'location', headerName: 'Location', active: true },
   ];
+
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('observations', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
   const handleSave = async (record: Record<string, any>) => {
     console.log('Save observation:', record);
@@ -58,7 +66,7 @@ export default function ObservationsPage() {
         },
         body: JSON.stringify(record),
       });
-       if (!response.ok) {
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const updatedObservation = await response.json();
@@ -72,21 +80,21 @@ export default function ObservationsPage() {
   return (
     <AuthenticatedLayout>
       <div className="p-8">
-      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Observations</h1>
-      <DataGrid
-        rows={observations}
-        columns={columns}
-        entityType="observation"
-        onSave={handleSave}
-        loading={loading}
-      />
-      {selectedRecord && (
-        <DetailView
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Observations</h1>
+        <DataGrid
+          rows={observations}
+          columns={columns}
           entityType="observation"
-          record={selectedRecord}
           onSave={handleSave}
+          loading={loading}
         />
-      )}
+        {selectedRecord && (
+          <DetailView
+            entityType="observation"
+            record={selectedRecord}
+            onSave={handleSave}
+          />
+        )}
       </div>
     </AuthenticatedLayout>
   );

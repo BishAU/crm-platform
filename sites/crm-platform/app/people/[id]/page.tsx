@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function PersonPage() {
   const [person, setPerson] = useState<any>(null);
@@ -57,7 +58,8 @@ export default function PersonPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update person');
+        const error = await response.text();
+        throw new Error(error || 'Failed to update person');
       }
 
       const data = await response.json();
@@ -69,12 +71,14 @@ export default function PersonPage() {
   };
 
   return (
-    <div className="p-6">
-      <DetailView
-        entityType="people"
-        record={person}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="people"
+          record={person}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }

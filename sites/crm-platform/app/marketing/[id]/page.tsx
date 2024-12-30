@@ -1,60 +1,84 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import DetailView from '../../components/DetailView';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function MarketingDetailPage() {
-  const params = useParams();
-  const { id } = params;
-  const [record, setRecord] = useState<Record<string, any> | null>(null);
+  const [record, setRecord] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const params = useParams();
 
   useEffect(() => {
-    // Fetch record data here based on the ID
-    // For now, use a placeholder
     const fetchRecord = async () => {
-      setLoading(true);
       try {
-        // Replace this with actual data fetching logic
-        const mockRecord = {
-          id: id,
-          name: 'Marketing ' + id,
-          type: 'Some Type',
-          description: 'Some Description',
-          startDate: '2024-12-27',
-        };
-        setRecord(mockRecord);
+        const response = await fetch(`/api/marketing/${params.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch marketing record');
+        }
+        const data = await response.json();
+        setRecord(data);
       } catch (error) {
-        console.error('Failed to fetch record:', error);
+        console.error('Error fetching marketing record:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecord();
-  }, [id]);
-
-  const handleSave = async (updatedRecord: Record<string, any>) => {
-    // Handle save logic here
-    console.log('Record saved:', updatedRecord);
-  };
+    if (params.id) {
+      fetchRecord();
+    }
+  }, [params.id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+      </div>
+    );
   }
 
   if (!record) {
-    return <div>Record not found</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-lg text-gray-500">Marketing record not found</div>
+      </div>
+    );
   }
 
+  const handleSave = async (updatedRecord: any) => {
+    try {
+      const response = await fetch(`/api/marketing/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedRecord),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to update marketing record');
+      }
+
+      const data = await response.json();
+      setRecord(data);
+    } catch (error) {
+      console.error('Error updating marketing record:', error);
+      throw error;
+    }
+  };
+
   return (
-    <div>
-      <DetailView
-        entityType="marketing"
-        record={record}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="marketing"
+          record={record}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }

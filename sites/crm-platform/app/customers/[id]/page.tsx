@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function CustomerPage() {
   const [customer, setCustomer] = useState<any>(null);
@@ -70,12 +71,14 @@ export default function CustomerPage() {
   };
 
   return (
-    <div className="p-6">
-      <DetailView
-        entityType="customers"
-        record={customer}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="customers"
+          record={customer}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }

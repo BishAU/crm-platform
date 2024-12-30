@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}";
+self.__REACT_LOADABLE_MANIFEST='{"app/components/NavigationTemp.tsx -> next-auth/react":{"id":2615,"files":[]}}';

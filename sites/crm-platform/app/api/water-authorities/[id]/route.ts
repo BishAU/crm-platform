@@ -1,45 +1,81 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { NextRequest } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
+
+function getSingleId(id: string | string[] | undefined): string | undefined {
+  if (!id) return undefined;
+  return Array.isArray(id) ? id[0] : id;
+}
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const waterAuthority = await prisma.waterAuthority.findUnique({
-      where: {
-        id: params.id,
-      },
-    });
-
-    if (!waterAuthority) {
-      return new NextResponse('Water Authority not found', { status: 404 });
+  return withAuth(request, async (req, session) => {
+    const id = getSingleId(params.id);
+    if (!id) {
+      return errorResponse('Bad Request', 400);
     }
 
-    return NextResponse.json(waterAuthority);
-  } catch (error) {
-    console.error('Error fetching water authority:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    const outfall = await prisma.outfall.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        authority: true,
+        contact: true,
+        contact_email: true,
+        contact_name: true,
+        state: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!outfall) {
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('Water Authority'), 404);
+    }
+
+    return jsonResponse(outfall);
+  });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const body = await request.json();
+  return withAuth(request, async (req, session) => {
+    const id = getSingleId(params.id);
+    if (!id) {
+      return errorResponse('Bad Request', 400);
+    }
 
-    const updatedWaterAuthority = await prisma.waterAuthority.update({
+    const body = await req.json();
+
+    const updatedOutfall = await prisma.outfall.update({
       where: {
-        id: params.id,
+        id,
       },
-      data: body,
+      data: {
+        authority: body.authority,
+        contact: body.contact,
+        contact_email: body.contact_email,
+        contact_name: body.contact_name,
+        state: body.state
+      },
+      select: {
+        id: true,
+        authority: true,
+        contact: true,
+        contact_email: true,
+        contact_name: true,
+        state: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
 
-    return NextResponse.json(updatedWaterAuthority);
-  } catch (error) {
-    console.error('Error updating water authority:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(updatedOutfall);
+  });
 }

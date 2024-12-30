@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '../components/DataGrid';
+import DataGrid from '@components/DataGrid';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface OutfallType {
   id: string;
@@ -10,35 +12,6 @@ interface OutfallType {
   createdAt: string;
   updatedAt: string;
 }
-
-const columns = [
-  {
-    field: 'name',
-    headerName: 'Name',
-    isPrimary: true,
-  },
-  {
-    field: 'description',
-    headerName: 'Description',
-  },
-  {
-    field: 'createdAt',
-    headerName: 'Created At',
-    active: false
-  },
-  {
-    field: 'updatedAt',
-    headerName: 'Updated At',
-    active: false
-  },
-  {
-    field: 'id',
-    headerName: 'ID',
-    active: false
-  },
-];
-
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
 
 export default function OutfallTypesPage() {
   const [rows, setRows] = useState<OutfallType[]>([]);
@@ -91,17 +64,60 @@ export default function OutfallTypesPage() {
     }
   };
 
+  const defaultColumns = [
+    {
+      field: 'name',
+      headerName: 'Name',
+      isPrimary: true,
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Created At',
+      active: false
+    },
+    {
+      field: 'updatedAt',
+      headerName: 'Updated At',
+      active: false
+    },
+    {
+      field: 'id',
+      headerName: 'ID',
+      active: false
+    },
+  ];
+
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('outfallType', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+      </div>
+    );
+  }
+
   return (
     <AuthenticatedLayout>
       <div className="p-8">
-      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Outfall Types</h1>
-      <DataGrid
-        columns={columns}
-        rows={rows}
-        entityType="outfallType"
-        onSave={handleSave}
-        loading={loading}
-      />
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Outfall Types</h1>
+        <DataGrid
+          columns={columns}
+          rows={rows}
+          entityType="outfallType"
+          onSave={handleSave}
+          loading={loading}
+        />
       </div>
     </AuthenticatedLayout>
   );

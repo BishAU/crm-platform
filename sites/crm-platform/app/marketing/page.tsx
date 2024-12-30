@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '../components/DataGrid';
-import DetailView from '../components/DetailView';
+import DataGrid from '@components/DataGrid';
+import DetailView from '@components/DetailView';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface Marketing {
   id: string;
@@ -37,7 +39,7 @@ export default function MarketingPage() {
     fetchMarketing();
   }, []);
 
-  const columns = [
+  const defaultColumns = [
     { field: 'id', headerName: 'ID', isPrimary: true, renderCell: (value: any) => {
       return <a href={`/marketing/${value.id}`} className="text-ocean-600 hover:text-ocean-800">{value.id}</a>
     } },
@@ -47,6 +49,14 @@ export default function MarketingPage() {
     { field: 'startDate', headerName: 'Start Date' },
     { field: 'endDate', headerName: 'End Date' },
   ];
+
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('marketing', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
   const handleSave = async (record: Record<string, any>) => {
     console.log('Save marketing:', record);
@@ -70,22 +80,24 @@ export default function MarketingPage() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Marketing</h1>
-      <DataGrid
-        rows={marketing}
-        columns={columns}
-        entityType="marketing"
-        onSave={handleSave}
-        loading={loading}
-      />
-      {selectedRecord && (
-        <DetailView
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Marketing</h1>
+        <DataGrid
+          rows={marketing}
+          columns={columns}
           entityType="marketing"
-          record={selectedRecord}
           onSave={handleSave}
+          loading={loading}
         />
-      )}
-    </div>
+        {selectedRecord && (
+          <DetailView
+            entityType="marketing"
+            record={selectedRecord}
+            onSave={handleSave}
+          />
+        )}
+      </div>
+    </AuthenticatedLayout>
   );
 }

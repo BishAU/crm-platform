@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
-import AuthenticatedLayout from '../../components/AuthenticatedLayout';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function WaterAuthorityPage() {
   const [waterAuthority, setWaterAuthority] = useState<any>(null);
@@ -58,7 +58,8 @@ export default function WaterAuthorityPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update water authority');
+        const error = await response.text();
+        throw new Error(error || 'Failed to update water authority');
       }
 
       const data = await response.json();
@@ -71,9 +72,9 @@ export default function WaterAuthorityPage() {
 
   return (
     <AuthenticatedLayout>
-      <div className="p-6">
+      <div className="flex-1 p-8">
         <DetailView
-          entityType="water-authorities"
+          entityType="waterAuthority"
           record={waterAuthority}
           onSave={handleSave}
         />

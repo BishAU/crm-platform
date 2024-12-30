@@ -20,10 +20,9 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@components/*": ["./components/*"],
-      "@app/*": ["./app/*"],
-      "@lib/*": ["./lib/*"]
+      "@components/*": ["app/components/*"],
+      "@app/*": ["app/*"],
+      "@lib/*": ["app/lib/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

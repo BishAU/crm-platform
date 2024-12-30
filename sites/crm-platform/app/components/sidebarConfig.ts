@@ -14,7 +14,6 @@ export const sidebarConfig = {
         { name: 'Customers', href: '/customers', icon: '🏪' },
         { name: 'Facilities', href: '/facilities', icon: '🏭' },
         { name: 'Outfall Types', href: '/outfall-types', icon: '🚰' },
-        { name: 'Users', href: '/users', icon: '👤' },
       ]
     },
     {
@@ -34,6 +33,29 @@ export const sidebarConfig = {
       subItems: [
         { name: 'Tickets', href: '/support/tickets', icon: '🎫' }
       ]
+    },
+  ],
+  footerNav: [
+    {
+      name: 'Clean Ocean Foundation',
+      href: 'https://www.cleanocean.org/',
+      icon: '',
+      isExternal: true,
+    },
+    {
+      name: 'Settings',
+      href: '/settings',
+      icon: '⚙️',
+      subItems: [
+        { name: 'Users', href: '/users', icon: '👤' },
+      ]
+    },
+    {
+      name: 'Sign out',
+      href: '#',
+      icon: '🚪',
+      onClick: 'signOut',
+      isButton: true
     }
   ]
 };

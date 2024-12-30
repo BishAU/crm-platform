@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function OutfallTypePage() {
   const [outfallType, setOutfallType] = useState<any>(null);
@@ -41,7 +42,7 @@ export default function OutfallTypePage() {
   if (!outfallType) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-500">Outfall Type not found</div>
+        <div className="text-lg text-gray-500">Outfall type not found</div>
       </div>
     );
   }
@@ -70,12 +71,14 @@ export default function OutfallTypePage() {
   };
 
   return (
-    <div className="p-6">
-      <DetailView
-        entityType="outfall-types"
-        record={outfallType}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="outfallType"
+          record={outfallType}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }

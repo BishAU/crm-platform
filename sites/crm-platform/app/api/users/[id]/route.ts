@@ -1,57 +1,71 @@
-import { NextResponse } from 'next/server';
-import { prisma } from 'lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/config';
+import { NextRequest } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  try {
+  return withAuth(request, async (req, session) => {
     const user = await prisma.user.findUnique({
       where: {
         id: params.id,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!user) {
-      return new NextResponse('User not found', { status: 404 });
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('User'), 404);
     }
 
-    return NextResponse.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(user);
+  });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
-  try {
-    const body = await request.json();
+  return withAuth(request, async (req, session) => {
+    const body = await req.json();
 
     const updatedUser = await prisma.user.update({
       where: {
         id: params.id,
       },
       data: body,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    return NextResponse.json(updatedUser);
-  } catch (error) {
-    console.error('Error updating user:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(updatedUser);
+  });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return withAuth(request, async (req, session) => {
+    await prisma.user.delete({
+      where: {
+        id: params.id,
+      },
+    });
+
+    return new Response(null, { status: 204 });
+  });
 }

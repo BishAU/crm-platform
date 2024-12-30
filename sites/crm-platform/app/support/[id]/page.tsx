@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function SupportTicketPage() {
   const [ticket, setTicket] = useState<any>(null);
@@ -41,7 +42,7 @@ export default function SupportTicketPage() {
   if (!ticket) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-500">Support Ticket not found</div>
+        <div className="text-lg text-gray-500">Support ticket not found</div>
       </div>
     );
   }
@@ -70,12 +71,14 @@ export default function SupportTicketPage() {
   };
 
   return (
-    <div className="p-6">
-      <DetailView
-        entityType="support-tickets"
-        record={ticket}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="supportTicket"
+          record={ticket}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }
