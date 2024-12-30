@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '../../lib/prisma';
-import type { RouteSegment } from '../../../types/next';
+import type { RouteSegment } from '../../types/route';
 
 export async function GET(request: NextRequest) {
   try {

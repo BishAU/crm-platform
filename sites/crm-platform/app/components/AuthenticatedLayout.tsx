@@ -104,7 +104,7 @@ export default function AuthenticatedLayout({
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="fixed left-0 h-full w-64 bg-white border-r border-gray-200 overflow-y-auto z-40">
-        <Sidebar menuItems={menuItems} />
+        <Sidebar />
       </div>
 
       {/* Main Content */}

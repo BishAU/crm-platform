@@ -13,8 +13,3 @@ export type DynamicRouteHandler<T = unknown> = (
 export interface RouteHandlerContext<T = unknown> {
   params: T;
 }
-
-export type RouteSegment<T = unknown> = (
-  request: NextRequest,
-  context: RouteHandlerContext<T>
-) => Promise<Response>;

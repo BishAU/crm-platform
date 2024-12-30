@@ -2,18 +2,23 @@ import { prisma } from '../lib/prisma';
 
 async function main() {
   try {
-    const politicians = await prisma.politician.findMany();
+    const politicians = await prisma.politician.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    });
 
     for (const politician of politicians) {
-      if (politician.firstName && politician.surname) {
-        const fullName = `${politician.firstName} ${politician.surname}`;
+      if (politician.name) {
+        // Update the fullName to match the existing name
         await prisma.politician.update({
           where: { id: politician.id },
-          data: { fullName },
+          data: { name: politician.name },
         });
-        console.log(`Updated fullName for politician ${politician.id}: ${fullName}`);
+        console.log(`Updated name for politician ${politician.id}: ${politician.name}`);
       } else {
-        console.log(`Skipping politician ${politician.id} due to missing firstName or surname`);
+        console.log(`Skipping politician ${politician.id} due to missing name`);
       }
     }
 

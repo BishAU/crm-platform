@@ -1,7 +1,9 @@
+
 "use client";
 import React from 'react';
 import AuthenticatedLayout from './components/AuthenticatedLayout';
 import DataCard from './components/DataCard';
+import OutfallList from './components/OutfallList';
 import LoadingState from './components/LoadingState';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';

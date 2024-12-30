@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import type { RouteSegment } from '../../../types/next';
+import type { RouteSegment } from '../../types/route';
 
 const prisma = new PrismaClient();
 
