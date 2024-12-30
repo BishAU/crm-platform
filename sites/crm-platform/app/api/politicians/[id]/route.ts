@@ -1,58 +1,75 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { NextRequest } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
+
+function getSingleId(id: string | string[] | undefined): string | undefined {
+  if (!id) return undefined;
+  return Array.isArray(id) ? id[0] : id;
+}
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
+  return withAuth(request, async (req, session) => {
+    const id = getSingleId(params.id);
+    if (!id) {
+      return errorResponse('Bad Request', 400);
+    }
+
     const politician = await prisma.politician.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     });
 
     if (!politician) {
-      return new NextResponse('Politician not found', { status: 404 });
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('Politician'), 404);
     }
 
-    return NextResponse.json(politician);
-  } catch (error) {
-    console.error('Error fetching politician:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(politician);
+  });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const body = await request.json();
-
-    // Ensure email is unique if provided
-    if (body.email) {
-      const existingPolitician = await prisma.politician.findUnique({
-        where: {
-          email: body.email,
-        },
-      });
-
-      if (existingPolitician && existingPolitician.id !== params.id) {
-        return new NextResponse('Email already in use', { status: 400 });
-      }
+  return withAuth(request, async (req, session) => {
+    const id = getSingleId(params.id);
+    if (!id) {
+      return errorResponse('Bad Request', 400);
     }
+
+    const body = await req.json();
 
     const updatedPolitician = await prisma.politician.update({
       where: {
-        id: params.id,
+        id,
       },
       data: body,
     });
 
-    return NextResponse.json(updatedPolitician);
-  } catch (error) {
-    console.error('Error updating politician:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(updatedPolitician);
+  });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return withAuth(request, async (req, session) => {
+    const id = getSingleId(params.id);
+    if (!id) {
+      return errorResponse('Bad Request', 400);
+    }
+
+    await prisma.politician.delete({
+      where: {
+        id,
+      },
+    });
+
+    return new Response(null, { status: 204 });
+  });
 }

@@ -70,6 +70,9 @@ import { useEffect } from 'react';
 
 export default function AuthenticatedLayout({
   children,
+  
+  
+  
 }: {
   children: React.ReactNode;
 }) {

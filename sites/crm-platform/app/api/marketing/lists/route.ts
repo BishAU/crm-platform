@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { prisma } from 'lib/prisma';
+import { prisma } from '../../../lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/config';
 
@@ -10,13 +10,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name, description } = await request.json();
+    const { name } = await request.json();
 
     const newList = await prisma.marketingList.create({
       data: {
         name,
-        description,
-        creator: session.user.id,
+        creatorId: session.user.id,
       },
     });
 

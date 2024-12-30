@@ -1,66 +1,70 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { NextResponse, NextRequest } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
+  return withAuth(request, async (req, session) => {
     const outfall = await prisma.outfall.findUnique({
       where: {
         id: params.id,
       },
       include: {
         postcodes: true,
+        observations: true,
       },
     });
 
     if (!outfall) {
-      return new NextResponse('Outfall not found', { status: 404 });
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('Outfall'), 404);
     }
 
-    // Map outfallName to name in response
-    return NextResponse.json({
-      ...outfall,
-      name: outfall.outfallName,
-    });
-  } catch (error) {
-    console.error('Error fetching outfall:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(outfall);
+  });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const body = await request.json();
-    const { name, ...updateData } = body;
+  return withAuth(request, async (req, session) => {
+    const body = await req.json();
+    const { name, ...rest } = body;
 
-    const updatedOutfall = await prisma.outfall.update({
+    const outfall = await prisma.outfall.update({
       where: {
         id: params.id,
       },
       data: {
         outfallName: name,
-        ...updateData,
+        ...rest,
       },
       include: {
         postcodes: true,
+        observations: true,
       },
     });
 
-    // Map outfallName to name in response
-    return NextResponse.json({
-      ...updatedOutfall,
-      name: updatedOutfall.outfallName,
+    return jsonResponse({
+      ...outfall,
+      name: outfall.outfallName,
     });
-  } catch (error) {
-    console.error('Error updating outfall:', error);
-    return NextResponse.json(
-      { error: 'Failed to update outfall' },
-      { status: 500 }
-    );
-  }
+  });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return withAuth(request, async (req, session) => {
+    await prisma.outfall.delete({
+      where: {
+        id: params.id,
+      },
+    });
+
+    return new Response(null, { status: 204 });
+  });
 }

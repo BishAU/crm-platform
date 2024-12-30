@@ -2,153 +2,100 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface OutfallData {
+  id: string;
+  outfallName: string;
+  latitude: string | null;
+  longitude: string | null;
+}
+
 async function main() {
-  console.log('Seeding database...');
+  // Create admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      name: 'Admin User',
+      password: '$2a$12$Qjixm3zZ7Z7Z7Z7Z7Z7Z7O' // Hashed password for 'password'
+    }
+  });
 
-  // Create outfalls
-  console.log('Creating outfalls...');
-  const outfalls = await Promise.all([
-    prisma.outfall.upsert({
-      where: { outfallName: 'North Beach Outfall' },
-      update: {},
-      create: {
-        outfallName: 'North Beach Outfall',
-        authority: 'Water Corp',
-        contact: 'John Smith',
-        contact_email: 'john.smith@watercorp.com.au',
-        contact_name: 'John Smith',
-        indigenousNation: 'Noongar',
-        landCouncil: 'South West Aboriginal Land and Sea Council',
-        latitude: -31.8982,
-        longitude: 115.7547,
-        state: 'WA',
-        type: 'Ocean',
-      },
-    }),
-    prisma.outfall.upsert({
-      where: { outfallName: 'South Beach Outfall' },
-      update: {},
-      create: {
-        outfallName: 'South Beach Outfall',
-        authority: 'Water Corp',
-        contact: 'Jane Doe',
-        contact_email: 'jane.doe@watercorp.com.au',
-        contact_name: 'Jane Doe',
-        indigenousNation: 'Noongar',
-        landCouncil: 'South West Aboriginal Land and Sea Council',
-        latitude: -32.0547,
-        longitude: 115.7547,
-        state: 'WA',
-        type: 'Ocean',
-      },
-    }),
-  ]);
+  // Create regular user
+  await prisma.user.upsert({
+    where: { email: 'user@example.com' },
+    update: {},
+    create: {
+      email: 'user@example.com',
+      name: 'Regular User',
+      password: '$2a$12$Qjixm3zZ7Z7Z7Z7Z7Z7Z7O' // Hashed password for 'password'
+    }
+  });
 
-  // Create water authorities
-  console.log('Creating water authorities...');
-  const waterAuthorities = await Promise.all([
-    prisma.waterAuthority.upsert({
-      where: { authorityName: 'Water Corp' },
-      update: {},
-      create: {
-        authorityName: 'Water Corp',
-        associatedIndigenousCommunities: 'Noongar',
-      },
-    }),
-    prisma.waterAuthority.upsert({
-      where: { authorityName: 'Sydney Water' },
-      update: {},
-      create: {
-        authorityName: 'Sydney Water',
-        associatedIndigenousCommunities: 'Gadigal',
-      },
-    }),
-  ]);
+  // Create Outfalls
+  const outfalls: OutfallData[] = [
+    {
+      id: 'north-beach-outfall',
+      outfallName: 'North Beach Outfall',
+      latitude: '-31.8982',
+      longitude: '115.7547'
+    },
+    {
+      id: 'south-beach-outfall',
+      outfallName: 'South Beach Outfall',
+      latitude: '-32.0547',
+      longitude: '115.7547'
+    }
+  ];
 
-  // Create indigenous communities
-  console.log('Creating indigenous communities...');
-  const indigenousCommunities = await Promise.all([
-    prisma.indigenousCommunity.upsert({
-      where: { authorityName: 'Noongar' },
+  for (const outfall of outfalls) {
+    await prisma.outfall.upsert({
+      where: { id: outfall.id },
       update: {},
-      create: {
-        authorityName: 'Noongar',
-        associatedIndigenousCommunities: 'South West Aboriginal Land and Sea Council',
-      },
-    }),
-    prisma.indigenousCommunity.upsert({
-      where: { authorityName: 'Gadigal' },
-      update: {},
-      create: {
-        authorityName: 'Gadigal',
-        associatedIndigenousCommunities: 'Metropolitan Local Aboriginal Land Council',
-      },
-    }),
-  ]);
+      create: outfall
+    });
+  }
 
-  // Create facilities
-  console.log('Creating facilities...');
-  const facilities = await Promise.all([
-    prisma.facility.upsert({
-      where: { facilityName: 'Beenyup Wastewater Treatment Plant' },
-      update: {},
-      create: {
-        facilityName: 'Beenyup Wastewater Treatment Plant',
-        type: 'Wastewater Treatment Plant',
-        sector: 'Water',
-        latitude: -31.8982,
-        longitude: 115.7547,
-        postcode: '6027',
-        regionType: 'Metropolitan',
-        suburb: 'Craigie',
-      },
-    }),
-    prisma.facility.upsert({
-      where: { facilityName: 'Woodman Point Wastewater Treatment Plant' },
-      update: {},
-      create: {
-        facilityName: 'Woodman Point Wastewater Treatment Plant',
-        type: 'Wastewater Treatment Plant',
-        sector: 'Water',
-        latitude: -32.1547,
-        longitude: 115.7547,
-        postcode: '6166',
-        regionType: 'Metropolitan',
-        suburb: 'Munster',
-      },
-    }),
-  ]);
+  // Create Politicians
+  const politicians = [
+    {
+      id: 'john-smith',
+      name: 'John Smith',
+      email: 'john.smith@parliament.gov.au',
+      party: 'Liberal',
+      position: 'MP'
+    },
+    {
+      id: 'jane-doe',
+      name: 'Jane Doe',
+      email: 'jane.doe@parliament.gov.au',
+      party: 'Labor',
+      position: 'Senator'
+    }
+  ];
 
-  // Create people
-  console.log('Creating people...');
-  const people = await Promise.all([
-    prisma.person.upsert({
-      where: { email: 'admin@cleanocean.com' },
+  for (const politician of politicians) {
+    await prisma.politician.upsert({
+      where: { id: politician.id },
       update: {},
-      create: {
-        fullName: 'Admin User',
-        email: 'admin@cleanocean.com',
-        firstName: 'Admin',
-        lastName: 'User',
-        organisation: 'Clean Ocean',
-        phoneNumber: '+61400000000',
-      },
-    }),
-    prisma.person.upsert({
-      where: { email: 'user@cleanocean.com' },
-      update: {},
-      create: {
-        fullName: 'Regular User',
-        email: 'user@cleanocean.com',
-        firstName: 'Regular',
-        lastName: 'User',
-        organisation: 'Clean Ocean',
-        phoneNumber: '+61400000001',
-      },
-    }),
-  ]);
+      create: politician
+    });
+  }
 
-  console.log('Seeding complete!');
+  // Create Marketing List
+  await prisma.marketingList.upsert({
+    where: { id: 'initial-marketing-list' },
+    update: {},
+    create: {
+      id: 'initial-marketing-list',
+      name: 'Initial Marketing List',
+      creator: {
+        connect: {
+          id: adminUser.id
+        }
+      }
+    }
+  });
 }
 
 main()

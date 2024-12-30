@@ -1,172 +1,95 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { prisma } from '../../../lib/prisma';
+import { NextResponse } from 'next/server';
+import { prisma } from '../../lib/prisma';
 import { Prisma } from '@prisma/client';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const search = searchParams.get('search') || '';
+    const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const sortBy = searchParams.get('sortBy') || 'fullName';
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'name';
     const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+
+    // Calculate pagination
     const skip = (page - 1) * limit;
 
+    // Build where clause for search
     const where = search
       ? {
           OR: [
-            {
-              fullName: {
-                contains: search,
-                mode: 'insensitive' as Prisma.QueryMode,
-              },
-            },
-            {
-              email: {
-                contains: search,
-                mode: 'insensitive' as Prisma.QueryMode,
-              },
-            },
-            {
-              organisation: {
-                contains: search,
-                mode: 'insensitive' as Prisma.QueryMode,
-              },
-            },
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {};
 
-    const [total, people] = await Promise.all([
-      prisma.person.count({ where }),
-      prisma.person.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          phoneNumber: true,
-          organisation: true,
-          address1: true,
-          city: true,
-          state: true,
-          postcode: true,
-          country: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      }),
-    ]);
+    // Get total count for pagination
+    const total = await prisma.user.count({ where });
 
-    const totalPages = Math.ceil(total / limit);
-
-    // Map the response to use 'name' instead of 'fullName'
-    const mappedPeople = people.map(person => ({
-      ...person,
-      name: person.fullName,
-    }));
+    const users = await prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     return NextResponse.json({
-      data: mappedPeople,
+      data: users,
       pagination: {
         total,
-        totalPages,
         page,
         limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
-    console.error('Error fetching people:', error);
+    console.error('Error fetching users:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch people' },
+      { error: 'Failed to fetch users' },
       { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const data = await request.json();
-    // Map 'name' to 'fullName' for database
-    const { name, ...rest } = data;
-    const person = await prisma.person.create({
-      data: {
-        fullName: name,
-        ...rest,
+    const user = await prisma.user.create({
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
-    // Map response back to use 'name'
-    return NextResponse.json({
-      data: {
-        ...person,
-        name: person.fullName,
-      },
-    }, { status: 201 });
+    return NextResponse.json(user, { status: 201 });
   } catch (error) {
-    console.error('Error creating person:', error);
-    return NextResponse.json(
-      { error: 'Failed to create person' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const data = await request.json();
-    const { id, name, ...updateData } = data;
-
-    const person = await prisma.person.update({
-      where: { id },
-      data: {
-        fullName: name,
-        ...updateData,
-      },
-    });
-
-    // Map response back to use 'name'
-    return NextResponse.json({
-      data: {
-        ...person,
-        name: person.fullName,
-      },
-    });
-  } catch (error) {
-    console.error('Error updating person:', error);
-    return NextResponse.json(
-      { error: 'Failed to update person' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json(
-        { error: 'ID is required' },
-        { status: 400 }
-      );
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return NextResponse.json(
+          { error: 'Email already exists' },
+          { status: 400 }
+        );
+      }
     }
-
-    await prisma.person.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting person:', error);
+    console.error('Error creating user:', error);
     return NextResponse.json(
-      { error: 'Failed to delete person' },
+      { error: 'Failed to create user' },
       { status: 500 }
     );
   }

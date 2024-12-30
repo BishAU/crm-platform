@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '../../components/DetailView';
+import DetailView from '@components/DetailView';
 import { useParams } from 'next/navigation';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function IndigenousCommunityPage() {
   const [community, setCommunity] = useState<any>(null);
@@ -41,7 +42,7 @@ export default function IndigenousCommunityPage() {
   if (!community) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-500">Indigenous Community not found</div>
+        <div className="text-lg text-gray-500">Indigenous community not found</div>
       </div>
     );
   }
@@ -57,7 +58,8 @@ export default function IndigenousCommunityPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update indigenous community');
+        const error = await response.text();
+        throw new Error(error || 'Failed to update indigenous community');
       }
 
       const data = await response.json();
@@ -69,12 +71,14 @@ export default function IndigenousCommunityPage() {
   };
 
   return (
-    <div className="p-6">
-      <DetailView
-        entityType="indigenous-communities"
-        record={community}
-        onSave={handleSave}
-      />
-    </div>
+    <AuthenticatedLayout>
+      <div className="flex-1 p-8">
+        <DetailView
+          entityType="indigenousCommunity"
+          record={community}
+          onSave={handleSave}
+        />
+      </div>
+    </AuthenticatedLayout>
   );
 }

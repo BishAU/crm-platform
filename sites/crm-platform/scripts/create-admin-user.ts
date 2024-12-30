@@ -1,28 +1,39 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
 const prisma = new PrismaClient();
-const bcrypt = require('bcryptjs');
 
 async function createAdminUser() {
-  const hashedPassword1 = '$2a$10$YhYfQ5dt8K29a0YzLiMaWu7fXuHj1J7z56qT2/9Qmdfs7OnlEqBOC';
+  const hashedPassword1 = await bcrypt.hash('FlindersRocks24!', 10);
   const hashedPassword2 = await bcrypt.hash('b15h0p', 10);
   
-  await prisma.user.update({
+  await prisma.user.upsert({
     where: { email: 'pksmith@cleanocean.org' },
-    data: {
+    update: {
       password: hashedPassword1,
-      active: true
+      isAdmin: true
+    },
+    create: {
+      email: 'pksmith@cleanocean.org',
+      password: hashedPassword1,
+      isAdmin: true
     }
   });
 
-  await prisma.user.update({
+  await prisma.user.upsert({
     where: { email: 'pbishop@cleanocean.org' },
-    data: {
+    update: {
       password: hashedPassword2,
-      active: true
+      isAdmin: true
+    },
+    create: {
+      email: 'pbishop@cleanocean.org',
+      password: hashedPassword2,
+      isAdmin: true
     }
   });
 
-  console.log('Admin users created successfully');
+  console.log('Admin users created/updated successfully');
 }
 
 createAdminUser()

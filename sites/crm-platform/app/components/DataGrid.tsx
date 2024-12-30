@@ -7,6 +7,7 @@ import DetailView from './DetailView';
 import GalleryView from './DataGrid/GalleryView';
 import { Column, DataGridProps } from './DataGrid/types';
 import { useRouter } from 'next/navigation';
+import { getFieldOrder, saveFieldOrder } from '../lib/field-visibility-client';
 
 export default function DataGrid({
   entityType,
@@ -25,21 +26,10 @@ export default function DataGrid({
   const [showFilters, setShowFilters] = useState(false);
   const [sortedColumn, setSortedColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [columnOrder, setColumnOrder] = useState<string[]>(columns.map(col => col.field));
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => 
+    getFieldOrder(entityType, columns.map(col => col.field))
+  );
   const router = useRouter();
-
-  // Load column order from local storage on mount
-  useEffect(() => {
-    const savedOrder = localStorage.getItem(`columnOrder-${entityType}`);
-    if (savedOrder) {
-      setColumnOrder(JSON.parse(savedOrder));
-    }
-  }, [entityType]);
-
-  // Save column order to local storage when it changes
-  useEffect(() => {
-    localStorage.setItem(`columnOrder-${entityType}`, JSON.stringify(columnOrder));
-  }, [columnOrder, entityType]);
 
   const getVisibleFields = (entityType: string, columns: Column[]) => {
     return columns.filter(col => col.active !== false).map(col => col.field);
@@ -50,7 +40,11 @@ export default function DataGrid({
   );
 
   const handleRowClick = (record: any) => {
-    router.push(`/${toKebabCase(entityType)}/${record.id}`);
+    if (entityType === 'marketingList') {
+      router.push(`/marketing/lists/${record.id}`);
+    } else {
+      router.push(`/${toKebabCase(entityType)}/${record.id}`);
+    }
   };
 
   const handleSave = async (updatedRecord: any) => {
@@ -89,6 +83,7 @@ export default function DataGrid({
     newColumnOrder.splice(result.destination.index, 0, removed);
 
     setColumnOrder(newColumnOrder);
+    saveFieldOrder(entityType, newColumnOrder);
   };
 
   function toKebabCase(str: string) {
@@ -111,6 +106,9 @@ export default function DataGrid({
   const orderedColumns = visibleColumns.sort((a, b) => 
     columnOrder.indexOf(a.field) - columnOrder.indexOf(b.field)
   );
+
+  // Ensure rows is always an array
+  const safeRows = Array.isArray(rows) ? rows : [];
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-sm border border-ocean-100">
@@ -238,7 +236,7 @@ export default function DataGrid({
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-ocean-100">
-                      {rows.map((row, rowIndex) => (
+                    {safeRows.map((row, rowIndex) => (
                         <tr
                           key={rowIndex}
                           role="row"
@@ -266,7 +264,7 @@ export default function DataGrid({
           </DragDropContext>
         ) : (
           <GalleryView
-            items={rows}
+            items={safeRows}
             columns={visibleColumns}
             onItemClick={handleRowClick}
             entityType={entityType}

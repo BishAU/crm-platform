@@ -23,7 +23,7 @@ export default function LoginPage() {
 
     try {
       const res = await signIn('credentials', {
-        email: username,
+        username,
         password,
         redirect: false,
         callbackUrl,

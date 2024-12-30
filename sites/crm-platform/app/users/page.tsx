@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '../components/DataGrid';
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
+import DataGrid from '@components/DataGrid';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface GridAction {
   label: string;
@@ -81,7 +82,7 @@ export default function UsersPage() {
     }
   };
 
-  const columns = [
+  const defaultColumns = [
     { field: 'name', headerName: 'Name', isPrimary: true },
     { field: 'email', headerName: 'Email' },
     { field: 'active', headerName: 'Active', type: 'boolean' },
@@ -89,6 +90,22 @@ export default function UsersPage() {
     { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
   ];
+
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('user', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+      </div>
+    );
+  }
 
   return (
     <AuthenticatedLayout>

@@ -1,11 +1,12 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '../../../lib/prisma';
+import { withAuth, jsonResponse, errorResponse, ERROR_MESSAGES } from '../../../lib/api';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
-  try {
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
     const ticket = await prisma.supportTicket.findUnique({
       where: {
         id: params.id,
@@ -16,22 +17,19 @@ export async function GET(
     });
 
     if (!ticket) {
-      return new NextResponse('Support Ticket not found', { status: 404 });
+      return errorResponse(ERROR_MESSAGES.NOT_FOUND('Support Ticket'), 404);
     }
 
-    return NextResponse.json(ticket);
-  } catch (error) {
-    console.error('Error fetching support ticket:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(ticket);
+  });
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json();
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
+    const body = await req.json();
 
     const updatedTicket = await prisma.supportTicket.update({
       where: {
@@ -43,9 +41,21 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedTicket);
-  } catch (error) {
-    console.error('Error updating support ticket:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
+    return jsonResponse(updatedTicket);
+  });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse | Response> {
+  return withAuth(request, async (req, session) => {
+    await prisma.supportTicket.delete({
+      where: {
+        id: params.id,
+      },
+    });
+
+    return new Response(null, { status: 204 });
+  });
 }

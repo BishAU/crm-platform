@@ -1,106 +1,59 @@
-interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-}
+import { NextResponse, NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../app/api/auth/[...nextauth]/config';
+import { RouteSegment, IdParam } from '../app/types/route';
 
-class ApiService {
-  private baseUrl = '/api';
+type HandlerFunction = (
+  req: NextRequest,
+  params: IdParam,
+  session?: any
+) => Promise<NextResponse>;
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+export function createHandler(handler: HandlerFunction, requireAuth = true) {
+  return async function(
+    req: NextRequest,
+    context: RouteSegment<IdParam>
+  ): Promise<NextResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'An error occurred');
+      if (requireAuth) {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+          return new NextResponse('Unauthorized', { status: 401 });
+        }
+        return await handler(req, context.params, session);
       }
-
-      const data = await response.json();
-      return { data };
+      return await handler(req, context.params);
     } catch (error) {
       console.error('API Error:', error);
-      return { error: error instanceof Error ? error.message : 'An error occurred' };
+      return new NextResponse('Internal Server Error', { status: 500 });
     }
-  }
-
-  // Direct HTTP methods
-  async get<T>(endpoint: string, config?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: 'GET' });
-  }
-
-  async post<T>(endpoint: string, data?: any, config?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      ...config,
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async put<T>(endpoint: string, data?: any, config?: RequestInit): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      ...config,
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  // Generic CRUD operations
-  async getAll<T>(entity: string, params?: Record<string, string>): Promise<ApiResponse<T[]>> {
-    const queryString = params ? `?${new URLSearchParams(params)}` : '';
-    return this.request<T[]>(`/${entity}${queryString}`);
-  }
-
-  async getById<T>(entity: string, id: string | number): Promise<ApiResponse<T>> {
-    return this.request<T>(`/${entity}/${id}`);
-  }
-
-  async create<T>(entity: string, data: any): Promise<ApiResponse<T>> {
-    return this.request<T>(`/${entity}`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async update<T>(
-    entity: string,
-    id: string | number,
-    data: any
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(`/${entity}/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  async delete(entity: string, id: string | number): Promise<ApiResponse<void>> {
-    return this.request<void>(`/${entity}/${id}`, {
-      method: 'DELETE',
-    });
-  }
-
-  // Search and filter
-  async search<T>(
-    entity: string,
-    query: string,
-    filters?: Record<string, any>
-  ): Promise<ApiResponse<T[]>> {
-    const params = new URLSearchParams({ q: query });
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.append(key, String(value));
-      });
-    }
-    return this.request<T[]>(`/${entity}/search?${params}`);
-  }
+  };
 }
 
-export const api = new ApiService();
+export function createProtectedHandler(handler: HandlerFunction) {
+  return createHandler(handler, true);
+}
+
+export function createPublicHandler(handler: HandlerFunction) {
+  return createHandler(handler, false);
+}
+
+// Common response helpers
+export const jsonResponse = (data: any, status = 200) => {
+  return NextResponse.json(data, { status });
+};
+
+export const errorResponse = (message: string, status = 500) => {
+  return new NextResponse(message, { status });
+};
+
+// Common error messages
+export const ERROR_MESSAGES = {
+  NOT_FOUND: (resource: string) => `${resource} not found`,
+  UNAUTHORIZED: 'Unauthorized',
+  FORBIDDEN: 'Forbidden',
+  BAD_REQUEST: 'Bad request',
+  INTERNAL_ERROR: 'Internal server error',
+  EMAIL_IN_USE: 'Email already in use',
+  INVALID_CREDENTIALS: 'Invalid credentials',
+} as const;

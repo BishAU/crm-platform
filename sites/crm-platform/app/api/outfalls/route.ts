@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { prisma } from '../../../lib/prisma';
+import { prisma } from '../../lib/prisma';
 import type { RouteSegment } from '../../../types/next';
 
 export async function GET(request: NextRequest) {
@@ -26,6 +26,19 @@ export async function GET(request: NextRequest) {
         }
       : {};
 
+    // Define a mapping for sort fields
+    const sortFieldMapping: Record<string, string> = {
+      outfallName: 'outfallName',
+      authority: 'authority',
+      type: 'type',
+      state: 'state',
+      createdAt: 'createdAt',
+      // Add other sortable fields here
+    };
+
+    // Validate and map sortBy to actual database field name
+    const dbSortBy = sortFieldMapping[sortBy] || 'outfallName';
+
     // Get total count for pagination
     const total = await prisma.outfall.count({ where });
 
@@ -34,7 +47,7 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
       orderBy: {
-        [sortBy]: sortOrder,
+        [dbSortBy]: sortOrder,
       },
       select: {
         id: true,

@@ -3532,3 +3532,30 @@
 2024-12-29T12:06:29: }
 2024-12-29T12:06:29: 
 2024-12-29T12:06:29: Argument `postcodes`: Invalid value provided. Expected OutfallPostcodeUpdateManyWithoutOutfallNestedInput or OutfallPostcodeUncheckedUpdateManyWithoutOutfallNestedInput, provided ().
+2024-12-29T12:33:50: 
+2024-12-29T12:33:50: > crm-platform@0.1.0 start
+2024-12-29T12:33:50: > next start -p 3100
+2024-12-29T12:33:50: 
+2024-12-29T12:33:51:   ▲ Next.js 14.2.22
+2024-12-29T12:33:51:   - Local:        http://localhost:3100
+2024-12-29T12:33:51: 
+2024-12-29T12:33:51:  ✓ Starting...
+2024-12-29T12:33:51:  ✓ Ready in 927ms
+2024-12-29T12:48:05: 
+2024-12-29T12:48:05: > crm-platform@0.1.0 start
+2024-12-29T12:48:05: > next start -p 3100
+2024-12-29T12:48:05: 
+2024-12-29T12:48:05:   ▲ Next.js 14.2.22
+2024-12-29T12:48:05:   - Local:        http://localhost:3100
+2024-12-29T12:48:05: 
+2024-12-29T12:48:05:  ✓ Starting...
+2024-12-29T12:48:06:  ✓ Ready in 1025ms
+2024-12-29T12:57:35: 
+2024-12-29T12:57:35: > crm-platform@0.1.0 start
+2024-12-29T12:57:35: > next start -p 3100
+2024-12-29T12:57:35: 
+2024-12-29T12:57:36:   ▲ Next.js 14.2.22
+2024-12-29T12:57:36:   - Local:        http://localhost:3100
+2024-12-29T12:57:36: 
+2024-12-29T12:57:36:  ✓ Starting...
+2024-12-29T12:57:36:  ✓ Ready in 911ms

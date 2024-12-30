@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '../../components/DataGrid';
-import DetailView from '../../components/DetailView';
+import DataGrid from '@components/DataGrid';
+import DetailView from '@components/DetailView';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface EmailAnalytics {
   id: string;
@@ -37,7 +39,7 @@ export default function EmailAnalyticsPage() {
     fetchEmailAnalytics();
   }, []);
 
-  const columns = [
+  const defaultColumns = [
     { field: 'id', headerName: 'ID', isPrimary: true },
     { field: 'campaign', headerName: 'Campaign' },
     { field: 'sentDate', headerName: 'Sent Date' },
@@ -46,9 +48,17 @@ export default function EmailAnalyticsPage() {
     { field: 'bounces', headerName: 'Bounces' },
   ];
 
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('emailAnalytics', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
+
   const handleSave = async (record: Record<string, any>) => {
     console.log('Save email analytics:', record);
-     try {
+    try {
       const response = await fetch(`/api/marketing/email-analytics/${record.id}`, {
         method: 'PUT',
         headers: {
@@ -68,22 +78,24 @@ export default function EmailAnalyticsPage() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Email Analytics</h1>
-      <DataGrid
-        rows={emailAnalytics}
-        columns={columns}
-        entityType="emailAnalytics"
-        onSave={handleSave}
-        loading={loading}
-      />
-      {selectedRecord && (
-        <DetailView
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Email Analytics</h1>
+        <DataGrid
+          rows={emailAnalytics}
+          columns={columns}
           entityType="emailAnalytics"
-          record={selectedRecord}
           onSave={handleSave}
+          loading={loading}
         />
-      )}
-    </div>
+        {selectedRecord && (
+          <DetailView
+            entityType="emailAnalytics"
+            record={selectedRecord}
+            onSave={handleSave}
+          />
+        )}
+      </div>
+    </AuthenticatedLayout>
   );
 }

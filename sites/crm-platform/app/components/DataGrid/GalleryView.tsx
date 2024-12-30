@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { Column, GalleryViewProps } from './types';
-import { getVisibleFields } from '../../lib/field-visibility-client';
 
 export default function GalleryView({ items, columns, onItemClick, entityType }: GalleryViewProps) {
   const primaryColumn = columns.find(col => col.isPrimary) || columns[0];
   const visibleColumns = columns.filter(col => 
     !col.isPrimary && 
-    getVisibleFields(entityType, columns.map(c => c.field)).includes(col.field)
+    col.active !== false
   );
 
   return (

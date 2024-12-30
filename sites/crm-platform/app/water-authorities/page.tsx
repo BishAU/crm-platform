@@ -1,7 +1,9 @@
 'use client';
 
-import DataGrid from '../components/DataGrid';
 import { useEffect, useState } from 'react';
+import DataGrid from '@components/DataGrid';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface WaterAuthority {
   id: string;
@@ -19,8 +21,6 @@ interface PaginationState {
   total: number;
   totalPages: number;
 }
-
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
 
 export default function WaterAuthoritiesPage() {
   const [waterAuthorities, setWaterAuthorities] = useState<WaterAuthority[]>([]);
@@ -124,39 +124,51 @@ export default function WaterAuthoritiesPage() {
     setSortOrder(order);
   };
 
-  const columns = [
+  const defaultColumns = [
     { field: 'authorityName', headerName: 'Authority Name', isPrimary: true },
     { field: 'associatedIndigenousCommunities', headerName: 'Associated Indigenous Communities' },
+    { field: 'activeStatus', headerName: 'Active Status' },
     { field: 'createdAt', headerName: 'Date Created', active: false },
     { field: 'updatedAt', headerName: 'Date Updated', active: false },
-    { field: 'activeStatus', headerName: 'Active Status' },
     { field: 'id', headerName: 'ID', active: false },
   ];
 
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('waterAuthority', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
+
   if (loading && !waterAuthorities.length) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+      </div>
+    );
   }
 
   return (
     <AuthenticatedLayout>
       <div className="p-8">
-      <h1 className="text-2xl font-bold text-ocean-900 mb-6">Water Authorities</h1>
-      <DataGrid
-        rows={waterAuthorities}
-        columns={columns}
-        entityType="waterAuthority"
-        onSave={handleSave}
-        loading={loading}
-        pagination={{
-          page: pagination.page,
-          pageSize: pagination.limit,
-          totalPages: pagination.totalPages,
-          totalItems: pagination.total
-        }}
-        onPageChange={handlePageChange}
-        onSearch={handleSearch}
-        onSort={handleSort}
-      />
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Water Authorities</h1>
+        <DataGrid
+          rows={waterAuthorities}
+          columns={columns}
+          entityType="waterAuthority"
+          onSave={handleSave}
+          loading={loading}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.limit,
+            totalPages: pagination.totalPages,
+            totalItems: pagination.total
+          }}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onSort={handleSort}
+        />
       </div>
     </AuthenticatedLayout>
   );

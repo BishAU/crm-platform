@@ -1,62 +1,106 @@
-export interface FieldVisibility {
-  [entityType: string]: {
-    [fieldName: string]: boolean;
-  };
+/**
+ * Get the stored field order for an entity type from localStorage
+ * If no order is stored, returns the default order
+ */
+export function getFieldOrder(entityType: string, defaultOrder: string[]): string[] {
+  if (typeof window === 'undefined') {
+    return defaultOrder;
+  }
+
+  const key = `${entityType}_field_order`;
+  const storedOrder = localStorage.getItem(key);
+  
+  if (!storedOrder) {
+    return defaultOrder;
+  }
+
+  try {
+    const parsedOrder = JSON.parse(storedOrder) as string[];
+    
+    // Ensure all default fields are included
+    const missingFields = defaultOrder.filter(field => !parsedOrder.includes(field));
+    return [...parsedOrder, ...missingFields];
+  } catch (error) {
+    console.error('Error parsing stored field order:', error);
+    return defaultOrder;
+  }
 }
 
-const STORAGE_KEY = 'field-visibility';
+/**
+ * Save the field order for an entity type to localStorage
+ */
+export function saveFieldOrder(entityType: string, order: string[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
 
-export function getFieldVisibility(): FieldVisibility {
+  const key = `${entityType}_field_order`;
+  try {
+    localStorage.setItem(key, JSON.stringify(order));
+  } catch (error) {
+    console.error('Error saving field order:', error);
+  }
+}
+
+/**
+ * Reset the field order for an entity type back to default
+ */
+export function resetFieldOrder(entityType: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const key = `${entityType}_field_order`;
+  localStorage.removeItem(key);
+}
+
+/**
+ * Get the visibility state of fields for an entity type
+ */
+export function getFieldVisibility(entityType: string): Record<string, boolean> {
   if (typeof window === 'undefined') {
     return {};
   }
 
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const key = `${entityType}_field_visibility`;
+  const stored = localStorage.getItem(key);
+  
   if (!stored) {
     return {};
   }
 
   try {
     return JSON.parse(stored);
-  } catch {
+  } catch (error) {
+    console.error('Error parsing stored field visibility:', error);
     return {};
   }
 }
 
-export function setFieldVisibility(entityType: string, fieldName: string, isVisible: boolean) {
-  const currentVisibility = getFieldVisibility();
-  
-  if (!currentVisibility[entityType]) {
-    currentVisibility[entityType] = {};
+/**
+ * Save the visibility state of fields for an entity type
+ */
+export function saveFieldVisibility(entityType: string, visibility: Record<string, boolean>): void {
+  if (typeof window === 'undefined') {
+    return;
   }
-  
-  currentVisibility[entityType][fieldName] = isVisible;
-  
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentVisibility));
+
+  const key = `${entityType}_field_visibility`;
+  try {
+    localStorage.setItem(key, JSON.stringify(visibility));
+  } catch (error) {
+    console.error('Error saving field visibility:', error);
   }
 }
 
-export function getVisibleFields(entityType: string, allFields: string[]): string[] {
-  const visibility = getFieldVisibility();
-  const entityVisibility = visibility[entityType] || {};
-  
-  // Initialize fields as visible if they haven't been set yet
-  if (Object.keys(entityVisibility).length === 0) {
-    const initialVisibility = allFields.reduce((acc, field) => {
-      acc[field] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
-
-    if (typeof window !== 'undefined') {
-      const currentVisibility = getFieldVisibility();
-      currentVisibility[entityType] = initialVisibility;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentVisibility));
-    }
-
-    return allFields;
+/**
+ * Reset the visibility state of fields for an entity type
+ */
+export function resetFieldVisibility(entityType: string): void {
+  if (typeof window === 'undefined') {
+    return;
   }
 
-  // Only return fields that are explicitly set to true
-  return allFields.filter(field => entityVisibility[field] === true);
+  const key = `${entityType}_field_visibility`;
+  localStorage.removeItem(key);
 }
