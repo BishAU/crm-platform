@@ -1,0 +1,43 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+npm-cache/
+
+# Environment variables
+.env
+*.env
+config.env
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.bak
+*~
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+build/
+
+# PM2 files
+.pm2/
+
+# Temporary files
+*.swp
+*.swo
