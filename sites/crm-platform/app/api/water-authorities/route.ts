@@ -1,110 +1,42 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { prisma } from '../../lib/prisma';
-import { Prisma } from '@prisma/client';
+import { NextRequest } from 'next/server';
+import { withAuth, jsonResponse, errorResponse } from '../../../lib/api';
+import * as db from '../../../lib/db';
+import { Session } from 'next-auth';
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const search = searchParams.get('search') || '';
-    const sortBy = searchParams.get('sortBy') || 'authority';
-    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
+export const dynamic = 'force-dynamic';
 
-    // Calculate pagination
-    const skip = (page - 1) * limit;
-
-    // Build where clause for search
-    const where = search
-      ? {
-          OR: [
-            { authority: { contains: search, mode: 'insensitive' as const } },
-            { state: { contains: search, mode: 'insensitive' as const } },
-          ],
-        }
-      : {};
-
-    // Get unique authorities count
-    const uniqueAuthorities = await prisma.outfall.groupBy({
-      by: ['authority'],
-      where: {
-        ...where,
-        authority: { not: null },
-      },
-    });
-
-    const total = uniqueAuthorities.length;
-
-    // Get paginated authorities
-    const outfalls = await prisma.outfall.groupBy({
-      by: ['authority', 'id', 'contact', 'contact_email', 'contact_name', 'state', 'createdAt', 'updatedAt'],
-      where: {
-        ...where,
-        authority: { not: null },
-      },
-      skip,
-      take: limit,
-      orderBy: {
-        authority: sortOrder,
-      },
-    });
-
-    return NextResponse.json({
-      data: outfalls.map(outfall => ({
-        id: outfall.id,
-        authority: outfall.authority,
-        contact: outfall.contact,
-        contact_email: outfall.contact_email,
-        contact_name: outfall.contact_name,
-        state: outfall.state,
-        createdAt: outfall.createdAt,
-        updatedAt: outfall.updatedAt,
-      })),
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching water authorities:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch water authorities' },
-      { status: 500 }
-    );
-  }
+interface WaterAuthority {
+  id: string;
+  name: string;
+  indigenousCommunities?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json();
-    const outfall = await prisma.outfall.create({
-      data: {
-        authority: data.authority,
-        contact: data.contact,
-        contact_email: data.contact_email,
-        contact_name: data.contact_name,
-        state: data.state,
-      },
-      select: {
-        id: true,
-        authority: true,
-        contact: true,
-        contact_email: true,
-        contact_name: true,
-        state: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+export async function GET(request: NextRequest) {
+  return withAuth(request, async (req: NextRequest, session: Session) => {
+    try {
+      const searchParams = req.nextUrl.searchParams;
+      const countOnly = searchParams.get('count') === 'true';
 
-    return NextResponse.json(outfall, { status: 201 });
-  } catch (error) {
-    console.error('Error creating water authority:', error);
-    return NextResponse.json(
-      { error: 'Failed to create water authority' },
-      { status: 500 }
-    );
-  }
+      if (countOnly) {
+        const authorities = await db.findMany('waterAuthority' as any, {}) as WaterAuthority[];
+        return jsonResponse({ count: authorities.length });
+      }
+
+      const authorities = await db.findMany('waterAuthority' as any, {
+        where: {
+          ...Object.fromEntries(
+            Array.from(searchParams.entries())
+              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
+          )
+        }
+      });
+
+      return jsonResponse({ data: authorities });
+    } catch (error) {
+      console.error('Error fetching water authorities:', error);
+      return errorResponse('Failed to fetch water authorities', 500);
+    }
+  });
 }
