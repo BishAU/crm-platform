@@ -18,13 +18,13 @@
     "/_app": [
       "static/chunks/webpack-faa92ad82bbe1dbb.js",
       "static/chunks/framework-a63c59c368572696.js",
-      "static/chunks/main-5a7d26bf36be5d8e.js",
+      "static/chunks/main-36a87320a62f12bc.js",
       "static/chunks/pages/_app-78ddf957b9a9b996.js"
     ],
     "/_error": [
       "static/chunks/webpack-faa92ad82bbe1dbb.js",
       "static/chunks/framework-a63c59c368572696.js",
-      "static/chunks/main-5a7d26bf36be5d8e.js",
+      "static/chunks/main-36a87320a62f12bc.js",
       "static/chunks/pages/_error-7ce03bcf1df914ce.js"
     ]
   },

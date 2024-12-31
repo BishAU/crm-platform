@@ -1,38 +1,43 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { prisma } from '../../lib/prisma';
-import type { RouteSegment } from '../../types/route';
+import { NextRequest } from 'next/server';
+import { withAuth, jsonResponse, errorResponse } from '../../../lib/api';
+import * as db from '../../../lib/db';
+import { Session } from 'next-auth';
 
-export async function GET(request: NextRequest) {
-  try {
-    const observations = await prisma.outfallObservation.findMany({
-      orderBy: {
-        date: 'desc',
-      },
-    });
+export const dynamic = 'force-dynamic';
 
-    return NextResponse.json(observations);
-  } catch (error) {
-    console.error('Error fetching outfall observations:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch outfall observations' },
-      { status: 500 }
-    );
-  }
+interface OutfallObservation {
+  id: string;
+  outfallId: string;
+  date: Date;
+  flow?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json();
-    const observation = await prisma.outfallObservation.create({
-      data,
-    });
+export async function GET(request: NextRequest) {
+  return withAuth(request, async (req: NextRequest, session: Session) => {
+    try {
+      const searchParams = req.nextUrl.searchParams;
+      const countOnly = searchParams.get('count') === 'true';
 
-    return NextResponse.json(observation, { status: 201 });
-  } catch (error) {
-    console.error('Error creating outfall observation:', error);
-    return NextResponse.json(
-      { error: 'Failed to create outfall observation' },
-      { status: 500 }
-    );
-  }
+      if (countOnly) {
+        const observations = await db.findMany('outfallObservation' as any, {}) as OutfallObservation[];
+        return jsonResponse({ count: observations.length });
+      }
+
+      const observations = await db.findMany('outfallObservation' as any, {
+        where: {
+          ...Object.fromEntries(
+            Array.from(searchParams.entries())
+              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
+          )
+        }
+      });
+
+      return jsonResponse({ data: observations });
+    } catch (error) {
+      console.error('Error fetching observations:', error);
+      return errorResponse('Failed to fetch observations', 500);
+    }
+  });
 }

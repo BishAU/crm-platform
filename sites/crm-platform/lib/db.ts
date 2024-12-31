@@ -89,6 +89,8 @@ export async function findMany(
   options?: {
     include?: string[];
     where?: Record<string, any>;
+    orderBy?: Record<string, 'asc' | 'desc'>;
+    take?: number;
   }
 ) {
   const includeObj = options?.include?.reduce(
@@ -98,6 +100,26 @@ export async function findMany(
 
   return (prisma[table] as any).findMany({
     where: options?.where,
+    include: includeObj,
+    orderBy: options?.orderBy,
+    take: options?.take
+  });
+}
+
+export async function create(
+  table: ModelName,
+  options: {
+    data: Record<string, any>;
+    include?: string[];
+  }
+) {
+  const includeObj = options?.include?.reduce(
+    (acc, curr) => ({ ...acc, [curr]: true }),
+    {}
+  );
+
+  return (prisma[table] as any).create({
+    data: options.data,
     include: includeObj
   });
 }
