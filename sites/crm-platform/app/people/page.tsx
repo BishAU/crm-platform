@@ -1,21 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import DataGrid from '@components/DataGrid';
 import AuthenticatedLayout from '@components/AuthenticatedLayout';
 import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface Person {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phoneNumber: string;
-  organisation: string;
-  address1: string;
-  city: string;
-  state: string;
-  postcode: string;
-  country: string;
+  phone: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,7 +32,7 @@ export default function PeoplePage() {
     totalPages: 0
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('fullName');
+  const [sortBy, setSortBy] = useState('lastName');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const fetchPeople = async (params: {
@@ -130,17 +125,13 @@ export default function PeoplePage() {
   };
 
   const defaultColumns = [
-    { field: 'name', headerName: 'Name', isPrimary: true },
+    { field: 'firstName', headerName: 'First Name', isPrimary: true },
+    { field: 'lastName', headerName: 'Last Name' },
     { field: 'email', headerName: 'Email' },
-    { field: 'phoneNumber', headerName: 'Phone' },
-    { field: 'organisation', headerName: 'Organisation' },
-    { field: 'address1', headerName: 'Address' },
-    { field: 'city', headerName: 'City' },
-    { field: 'state', headerName: 'State' },
-    { field: 'postcode', headerName: 'Postcode' },
-    { field: 'country', headerName: 'Country' },
-    { field: 'createdAt', headerName: 'Created At' },
-    { field: 'updatedAt', headerName: 'Updated At' },
+    { field: 'phone', headerName: 'Phone' },
+    { field: 'createdAt', headerName: 'Created At', active: false },
+    { field: 'updatedAt', headerName: 'Updated At', active: false },
+    { field: 'id', headerName: 'ID', active: false },
   ];
 
   // Get the ordered field names from localStorage or use default order

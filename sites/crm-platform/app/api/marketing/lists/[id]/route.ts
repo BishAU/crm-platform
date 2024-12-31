@@ -17,7 +17,7 @@ export async function GET(
       return errorResponse(ERROR_MESSAGES.BAD_REQUEST, 400);
     }
 
-    const list = await db.findById('MarketingList', id);
+    const list = await db.findById('marketingList', id);
 
     if (!list) {
       return errorResponse(ERROR_MESSAGES.NOT_FOUND('Marketing list'), 404);
@@ -38,7 +38,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const updatedList = await db.updateById('MarketingList', id, body);
+    const updatedList = await db.updateById('marketingList', id, body);
 
     if (!updatedList) {
       return errorResponse(ERROR_MESSAGES.INTERNAL_ERROR, 500);

@@ -1,41 +1,81 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import DataGrid from '@components/DataGrid';
-import { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@components/AuthenticatedLayout';
 import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface Politician {
   id: string;
   firstName: string;
-  surname: string;
-  role: string;
+  lastName: string;
   party: string;
-  email: string;
-  phone: string;
+  constituency: string;
+  contact: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export default function PoliticiansPage() {
   const [politicians, setPoliticians] = useState<Politician[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('lastName');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const fetchPoliticians = async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: params.page.toString(),
+        limit: params.limit.toString(),
+        ...(params.search && { search: params.search }),
+        ...(params.sortBy && { sortBy: params.sortBy }),
+        ...(params.sortOrder && { sortOrder: params.sortOrder })
+      });
+
+      const response = await fetch(`/api/politicians?${queryParams}`);
+      const data = await response.json();
+      setPoliticians(data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        ...data.pagination
+      }));
+    } catch (error) {
+      console.error('Error fetching politicians:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPoliticians = async () => {
-      try {
-        const response = await fetch('/api/politicians');
-        const data = await response.json();
-        setPoliticians(data.data || []);
-      } catch (error) {
-        console.error('Error fetching politicians:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPoliticians();
-  }, []);
+    fetchPoliticians({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: searchTerm,
+      sortBy,
+      sortOrder
+    });
+  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
 
   const handleSave = async (updatedRecord: Record<string, any>) => {
     try {
@@ -51,27 +91,46 @@ export default function PoliticiansPage() {
         throw new Error('Failed to update politician');
       }
 
-      // Refresh the list
-      const refreshResponse = await fetch('/api/politicians');
-      const refreshData = await refreshResponse.json();
-      setPoliticians(refreshData.data || []);
+      // Refresh the current page
+      fetchPoliticians({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchTerm,
+        sortBy,
+        sortOrder
+      });
     } catch (error) {
       console.error('Error updating politician:', error);
       throw error;
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPagination(prev => ({
+      ...prev,
+      page: 1 // Reset to first page on new search
+    }));
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSortBy(field);
+    setSortOrder(order);
+  };
+
   const defaultColumns = [
-    { 
-      field: 'name', 
-      headerName: 'Full Name', 
-      isPrimary: true,
-      renderCell: (row: Politician) => `${row.firstName} ${row.surname}`
-    },
-    { field: 'role', headerName: 'Role' },
+    { field: 'firstName', headerName: 'First Name', isPrimary: true },
+    { field: 'lastName', headerName: 'Last Name' },
     { field: 'party', headerName: 'Party' },
-    { field: 'email', headerName: 'Email' },
-    { field: 'phone', headerName: 'Phone' },
+    { field: 'constituency', headerName: 'Constituency' },
+    { field: 'contact', headerName: 'Contact' },
     { field: 'createdAt', headerName: 'Created At', active: false },
     { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
@@ -85,7 +144,7 @@ export default function PoliticiansPage() {
     .map(field => defaultColumns.find(col => col.field === field))
     .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
-  if (loading) {
+  if (loading && !politicians.length) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
@@ -103,6 +162,15 @@ export default function PoliticiansPage() {
           entityType="politician"
           onSave={handleSave}
           loading={loading}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.limit,
+            totalPages: pagination.totalPages,
+            totalItems: pagination.total
+          }}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onSort={handleSort}
         />
       </div>
     </AuthenticatedLayout>

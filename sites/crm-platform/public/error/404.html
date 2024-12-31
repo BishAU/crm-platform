@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(180deg, #1e3a8a 0%, #0c4a6e 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: #015871;
+            z-index: -1;
+        }
+        .wave {
+            background: url(/wave.svg) repeat-x;
+            position: absolute;
+            bottom: -10px;
+            width: 6400px;
+            height: 198px;
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: translate3d(0, 0, 0);
+        }
+        .wave:nth-of-type(2) {
+            bottom: -25px;
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite;
+            opacity: 0.8;
+        }
+        .wave:nth-of-type(3) {
+            bottom: -40px;
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.25s infinite;
+            opacity: 0.6;
+        }
+        @keyframes wave {
+            0% { margin-left: 0; }
+            100% { margin-left: -1600px; }
+        }
+        .content {
+            z-index: 1;
+            padding: 2rem;
+            max-width: 600px;
+        }
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        p {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin-top: 2rem;
+            background-color: #0ea5e9;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .button:hover {
+            background-color: #0284c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>404</h1>
+        <p>Oops! Looks like this page is lost at sea.</p>
+        <a href="/" class="button">Return to Shore</a>
+    </div>
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+</body>
+</html>

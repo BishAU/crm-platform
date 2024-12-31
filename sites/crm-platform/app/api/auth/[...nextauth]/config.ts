@@ -23,7 +23,12 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token && session.user) {
+      // Verify token is valid and not expired
+      if (!token || !token.id || !token.exp || Date.now() >= Number(token.exp) * 1000) {
+        throw new Error('Invalid session');
+      }
+
+      if (session.user) {
         session.user.id = token.id as string;
       }
       return session;
@@ -59,25 +64,69 @@ export const authOptions: AuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 60 * 60, // 1 hour
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  events: {
+    async signOut({ token, session }) {
+      if (token) {
+        // Clear all sessions and tokens for this user
+        await Promise.all([
+          // Clear database sessions
+          prisma.session.deleteMany({
+            where: { userId: token.id as string }
+          }),
+          // Clear JWT tokens
+          prisma.account.updateMany({
+            where: { userId: token.id as string },
+            data: {
+              access_token: null,
+              refresh_token: null,
+              id_token: null
+            }
+          }),
+          // Force expire all sessions
+          prisma.session.updateMany({
+            where: { userId: token.id as string },
+            data: { expires: new Date(0) }
+          })
+        ]);
+      }
+    },
+    async session({ session, token }) {
+      // Verify session hasn't expired
+      if (token.exp && Date.now() >= Number(token.exp) * 1000) {
+        await prisma.session.deleteMany({
+          where: {
+            userId: token.id as string
+          }
+        });
+      }
+    }
   },
   cookies: {
     sessionToken: {
       name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? '.myinvoices.today' : undefined
+        domain: process.env.NODE_ENV === 'production' ? '.myinvoices.today' : undefined,
+        maxAge: 24 * 60 * 60 // 24 hours
       }
     },
     callbackUrl: {
       name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.callback-url' : 'next-auth.callback-url',
       options: {
-        sameSite: 'lax',
+        sameSite: 'strict',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 60 * 60, // 1 hour
         domain: process.env.NODE_ENV === 'production' ? '.myinvoices.today' : undefined
       }
     },

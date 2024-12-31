@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -10,6 +11,8 @@ interface OutfallData {
 }
 
 async function main() {
+  const hashedPassword = bcrypt.hashSync('password', 10);
+
   // Create admin user
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
@@ -17,7 +20,8 @@ async function main() {
     create: {
       email: 'admin@example.com',
       name: 'Admin User',
-      password: '$2a$12$Qjixm3zZ7Z7Z7Z7Z7Z7Z7O' // Hashed password for 'password'
+      password: hashedPassword,
+      isAdmin: true
     }
   });
 
@@ -28,7 +32,7 @@ async function main() {
     create: {
       email: 'user@example.com',
       name: 'Regular User',
-      password: '$2a$12$Qjixm3zZ7Z7Z7Z7Z7Z7Z7O' // Hashed password for 'password'
+      password: hashedPassword
     }
   });
 

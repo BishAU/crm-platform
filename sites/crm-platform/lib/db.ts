@@ -1,35 +1,24 @@
-import { prisma } from './prisma';
+import { prisma } from '../app/lib/prisma';
+import { Prisma, PrismaClient } from '@prisma/client';
 
-export async function findById(table: string, id: string, include?: string[]) {
-  const result = await prisma.$queryRaw`
-    SELECT * FROM "${table}" WHERE id = ${id}
-  `;
-  
-  if (!Array.isArray(result) || !result[0]) return null;
-  let record = result[0];
+type PrismaModels = {
+  [K in keyof PrismaClient]: PrismaClient[K] extends { findUnique: any }
+    ? K
+    : never;
+}[keyof PrismaClient];
 
-  if (include?.length) {
-    const relatedData = await Promise.all(
-      include.map(async (relation) => {
-        const related = await prisma.$queryRaw`
-          SELECT * FROM "${relation}"
-          WHERE "${table.toLowerCase()}Id" = ${id}
-        `;
-        return { [relation]: Array.isArray(related) ? related : [] };
-      })
-    );
+type ModelName = Uncapitalize<PrismaModels>;
 
-    record = {
-      ...record,
-      ...Object.assign({}, ...relatedData)
-    };
-  }
-
-  return record;
+export async function findById(table: ModelName, id: string, include?: string[]) {
+  const includeObj = include?.reduce((acc, curr) => ({ ...acc, [curr]: true }), {});
+  return (prisma[table] as any).findUnique({
+    where: { id },
+    include: includeObj
+  });
 }
 
 export async function updateById(
-  table: string,
+  table: ModelName,
   id: string,
   data: Record<string, any>,
   options?: {
@@ -51,75 +40,64 @@ export async function updateById(
     });
   }
 
-  return prisma.$transaction(async (tx) => {
-    // Update each field individually to maintain type safety
-    for (const [key, value] of Object.entries(mappedData)) {
-      if (value !== undefined) {
-        await tx.$executeRaw`
-          UPDATE "${table}"
-          SET "${key}" = ${value === null ? null : value}
-          WHERE id = ${id}
-        `;
-      }
-    }
+  const includeObj = options?.relations?.reduce(
+    (acc, curr) => ({ ...acc, [curr.table]: true }),
+    {}
+  );
 
-    // Update timestamp
-    await tx.$executeRaw`
-      UPDATE "${table}"
-      SET "updatedAt" = NOW()
-      WHERE id = ${id}
-    `;
-
-    // Handle relations if any
-    if (options?.relations) {
-      for (const relation of options.relations) {
-        // Delete existing relations
-        await tx.$executeRaw`
-          DELETE FROM "${relation.table}"
-          WHERE "${table.toLowerCase()}Id" = ${id}
-        `;
-
-        // Insert new relations one by one
-        for (const item of relation.data) {
-          for (const [key, value] of Object.entries(item)) {
-            await tx.$executeRaw`
-              INSERT INTO "${relation.table}" ("${table.toLowerCase()}Id", "${key}")
-              VALUES (${id}, ${value})
-            `;
-          }
-        }
-      }
-    }
-
-    // Fetch updated record with relations
-    return findById(table, id, options?.relations?.map(r => r.table));
+  return (prisma[table] as any).update({
+    where: { id },
+    data: {
+      ...mappedData,
+      updatedAt: new Date(),
+      ...(options?.relations
+        ? options.relations.reduce((acc, relation) => ({
+            ...acc,
+            [relation.table]: {
+              deleteMany: {},
+              create: relation.data
+            }
+          }), {})
+        : {})
+    },
+    include: includeObj
   });
 }
 
-export async function findByEmail(table: string, email: string, excludeId?: string) {
-  const result = excludeId
-    ? await prisma.$queryRaw`
-        SELECT id FROM "${table}" 
-        WHERE email = ${email} AND id != ${excludeId}
-      `
-    : await prisma.$queryRaw`
-        SELECT id FROM "${table}" 
-        WHERE email = ${email}
-      `;
-
-  return Array.isArray(result) ? result[0] : null;
+export async function findByEmail(table: ModelName, email: string, excludeId?: string) {
+  return (prisma[table] as any).findFirst({
+    where: {
+      email,
+      ...(excludeId ? { NOT: { id: excludeId } } : {})
+    },
+    select: { id: true }
+  });
 }
 
-export async function findByName(table: string, name: string, excludeId?: string) {
-  const result = excludeId
-    ? await prisma.$queryRaw`
-        SELECT id FROM "${table}" 
-        WHERE name = ${name} AND id != ${excludeId}
-      `
-    : await prisma.$queryRaw`
-        SELECT id FROM "${table}" 
-        WHERE name = ${name}
-      `;
+export async function findByName(table: ModelName, name: string, excludeId?: string) {
+  return (prisma[table] as any).findFirst({
+    where: {
+      name,
+      ...(excludeId ? { NOT: { id: excludeId } } : {})
+    },
+    select: { id: true }
+  });
+}
 
-  return Array.isArray(result) ? result[0] : null;
+export async function findMany(
+  table: ModelName,
+  options?: {
+    include?: string[];
+    where?: Record<string, any>;
+  }
+) {
+  const includeObj = options?.include?.reduce(
+    (acc, curr) => ({ ...acc, [curr]: true }),
+    {}
+  );
+
+  return (prisma[table] as any).findMany({
+    where: options?.where,
+    include: includeObj
+  });
 }

@@ -8,7 +8,8 @@ import { getFieldOrder } from '@lib/field-visibility-client';
 interface IndigenousCommunity {
   id: string;
   name: string;
-  associatedIndigenousCommunities: string;
+  location: string;
+  contact: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -85,7 +86,7 @@ export default function IndigenousCommunitiesPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update indigenous community');
+        throw new Error('Failed to update community');
       }
 
       // Refresh the current page
@@ -97,7 +98,7 @@ export default function IndigenousCommunitiesPage() {
         sortOrder
       });
     } catch (error) {
-      console.error('Error updating indigenous community:', error);
+      console.error('Error updating community:', error);
       throw error;
     }
   };
@@ -124,14 +125,15 @@ export default function IndigenousCommunitiesPage() {
 
   const defaultColumns = [
     { field: 'name', headerName: 'Name', isPrimary: true },
-    { field: 'associatedIndigenousCommunities', headerName: 'Associated Communities' },
+    { field: 'location', headerName: 'Location' },
+    { field: 'contact', headerName: 'Contact' },
     { field: 'createdAt', headerName: 'Created At', active: false },
     { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
   ];
 
   // Get the ordered field names from localStorage or use default order
-  const orderedFields = getFieldOrder('indigenousCommunity', defaultColumns.map(col => col.field));
+  const orderedFields = getFieldOrder('indigenous-community', defaultColumns.map(col => col.field));
 
   // Reorder columns based on the saved field order
   const columns = orderedFields
@@ -153,7 +155,7 @@ export default function IndigenousCommunitiesPage() {
         <DataGrid
           rows={communities}
           columns={columns}
-          entityType="indigenousCommunity"
+          entityType="indigenous-community"
           onSave={handleSave}
           loading={loading}
           pagination={{
