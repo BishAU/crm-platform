@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import DataGrid from '@components/DataGrid';
 import AuthenticatedLayout from '@components/AuthenticatedLayout';
 import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface WaterAuthority {
   id: string;
-  authorityName: string;
-  name: string; // For display purposes
-  associatedIndigenousCommunities: string;
-  activeStatus: boolean;
+  name: string;
+  region: string;
+  contact: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,7 +22,7 @@ interface PaginationState {
 }
 
 export default function WaterAuthoritiesPage() {
-  const [waterAuthorities, setWaterAuthorities] = useState<WaterAuthority[]>([]);
+  const [authorities, setAuthorities] = useState<WaterAuthority[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
@@ -32,10 +31,10 @@ export default function WaterAuthoritiesPage() {
     totalPages: 0
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('authorityName');
+  const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  const fetchWaterAuthorities = async (params: {
+  const fetchAuthorities = async (params: {
     page: number;
     limit: number;
     search?: string;
@@ -54,7 +53,7 @@ export default function WaterAuthoritiesPage() {
 
       const response = await fetch(`/api/water-authorities?${queryParams}`);
       const data = await response.json();
-      setWaterAuthorities(data.data || []);
+      setAuthorities(data.data || []);
       setPagination(prev => ({
         ...prev,
         ...data.pagination
@@ -67,7 +66,7 @@ export default function WaterAuthoritiesPage() {
   };
 
   useEffect(() => {
-    fetchWaterAuthorities({
+    fetchAuthorities({
       page: pagination.page,
       limit: pagination.limit,
       search: searchTerm,
@@ -91,7 +90,7 @@ export default function WaterAuthoritiesPage() {
       }
 
       // Refresh the current page
-      fetchWaterAuthorities({
+      fetchAuthorities({
         page: pagination.page,
         limit: pagination.limit,
         search: searchTerm,
@@ -125,23 +124,23 @@ export default function WaterAuthoritiesPage() {
   };
 
   const defaultColumns = [
-    { field: 'authorityName', headerName: 'Authority Name', isPrimary: true },
-    { field: 'associatedIndigenousCommunities', headerName: 'Associated Indigenous Communities' },
-    { field: 'activeStatus', headerName: 'Active Status' },
-    { field: 'createdAt', headerName: 'Date Created', active: false },
-    { field: 'updatedAt', headerName: 'Date Updated', active: false },
+    { field: 'name', headerName: 'Name', isPrimary: true },
+    { field: 'region', headerName: 'Region' },
+    { field: 'contact', headerName: 'Contact' },
+    { field: 'createdAt', headerName: 'Created At', active: false },
+    { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
   ];
 
   // Get the ordered field names from localStorage or use default order
-  const orderedFields = getFieldOrder('waterAuthority', defaultColumns.map(col => col.field));
+  const orderedFields = getFieldOrder('water-authority', defaultColumns.map(col => col.field));
 
   // Reorder columns based on the saved field order
   const columns = orderedFields
     .map(field => defaultColumns.find(col => col.field === field))
     .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
-  if (loading && !waterAuthorities.length) {
+  if (loading && !authorities.length) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
@@ -154,9 +153,9 @@ export default function WaterAuthoritiesPage() {
       <div className="p-8">
         <h1 className="text-2xl font-bold text-ocean-900 mb-6">Water Authorities</h1>
         <DataGrid
-          rows={waterAuthorities}
+          rows={authorities}
           columns={columns}
-          entityType="waterAuthority"
+          entityType="water-authority"
           onSave={handleSave}
           loading={loading}
           pagination={{

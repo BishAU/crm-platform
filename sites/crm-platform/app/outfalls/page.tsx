@@ -1,18 +1,23 @@
 'use client';
 
-import DataGrid from '../components/DataGrid';
-import { useEffect, useState } from 'react';
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
-import { PencilIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import DataGrid from '@components/DataGrid';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import { getFieldOrder } from '@lib/field-visibility-client';
 
 interface Outfall {
   id: string;
-  name: string;
-  description: string;
+  outfallName: string;
+  outfall: string;
   type: string;
-  facilityId: string;
-  latitude: number;
-  longitude: number;
+  authority: string;
+  state: string;
+  latitude: string;
+  longitude: string;
+  indigenousNation: string;
+  landCouncil: string;
+  contact_name: string;
+  contact_email: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -126,40 +131,37 @@ export default function OutfallsPage() {
     setSortOrder(order);
   };
 
-  const columns = [
-    { 
-      field: 'name', 
-      headerName: 'Name', 
-      isPrimary: true, 
-      renderCell: (value: any) => {
-        return (
-          <div className="group relative">
-            <a 
-              href={`/outfalls/${value.id}`} 
-              className="text-ocean-600 hover:text-ocean-800 inline-flex items-center"
-            >
-              <span>{value.name}</span>
-              <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center">
-                <PencilIcon className="h-4 w-4 mr-1" />
-                <span className="text-sm">Edit</span>
-              </div>
-            </a>
-          </div>
-        );
-      } 
-    },
-    { field: 'description', headerName: 'Description' },
+  const defaultColumns = [
+    { field: 'outfallName', headerName: 'Name', isPrimary: true },
+    { field: 'outfall', headerName: 'Outfall ID' },
     { field: 'type', headerName: 'Type' },
-    { field: 'facilityId', headerName: 'Facility ID' },
-    { field: 'latitude', headerName: 'Latitude' },
-    { field: 'longitude', headerName: 'Longitude' },
+    { field: 'authority', headerName: 'Authority' },
+    { field: 'state', headerName: 'State' },
+    { field: 'indigenousNation', headerName: 'Indigenous Nation' },
+    { field: 'landCouncil', headerName: 'Land Council' },
+    { field: 'contact_name', headerName: 'Contact Name' },
+    { field: 'contact_email', headerName: 'Contact Email' },
+    { field: 'latitude', headerName: 'Latitude', active: false },
+    { field: 'longitude', headerName: 'Longitude', active: false },
     { field: 'createdAt', headerName: 'Created At', active: false },
     { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
   ];
 
+  // Get the ordered field names from localStorage or use default order
+  const orderedFields = getFieldOrder('outfall', defaultColumns.map(col => col.field));
+
+  // Reorder columns based on the saved field order
+  const columns = orderedFields
+    .map(field => defaultColumns.find(col => col.field === field))
+    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
+
   if (loading && !outfalls.length) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+      </div>
+    );
   }
 
   return (

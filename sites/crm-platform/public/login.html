@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CRM Platform</title>
+    <link rel="stylesheet" href="/styles/animations.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            margin: 1rem;
+            position: relative;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #0077be;
+            margin-bottom: 1.5rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0077be;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: #005c91;
+        }
+    </style>
+</head>
+<body class="ocean-bg">
+    <!-- Sky with clouds and paragliders -->
+    <div class="sky">
+        <div class="cloud">☁️</div>
+        <div class="cloud">☁️</div>
+        <div class="cloud">☁️</div>
+        <div class="cloud">☁️</div>
+        <div class="cloud">☁️</div>
+        <div class="paraglider">🪂</div>
+        <div class="paraglider">🪂</div>
+    </div>
+
+    <!-- Ocean with waves, surfer, and fish -->
+    <div class="waves">
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div class="wave wave-3"></div>
+        <div class="surfer">🏄</div>
+        <div class="fish">🐠</div>
+        <div class="fish">🐟</div>
+        <div class="fish">🐡</div>
+    </div>
+
+    <!-- Login container -->
+    <div class="login-container fade-in-up">
+        <h1 class="slide-in">Welcome Back</h1>
+        <form>
+            <input type="email" placeholder="Email" required class="fade-in-up" style="animation-delay: 0.2s">
+            <input type="password" placeholder="Password" required class="fade-in-up" style="animation-delay: 0.3s">
+            <button type="submit" class="fade-in-up" style="animation-delay: 0.4s">Login</button>
+        </form>
+    </div>
+
+    <script>
+        // Add form submission handling if needed
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add your login logic here
+        });
+    </script>
+</body>
+</html>

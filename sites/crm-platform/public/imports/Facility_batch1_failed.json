@@ -1,0 +1,502 @@
+[
+  {
+    "Latitude": "-33.93010482",
+    "Longtitude": "150.9209231",
+    "Postcode": "2170",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Liverpool",
+    "Type": "Combined",
+    "﻿Facility Name": "Al Amanah College"
+  },
+  {
+    "Latitude": "-33.9172",
+    "Longtitude": "151.028",
+    "Postcode": "2200",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Bankstown",
+    "Type": "Primary",
+    "﻿Facility Name": "Al Amanah College, Bankstown campus"
+  },
+  {
+    "Latitude": "-33.9262",
+    "Longtitude": "151.081",
+    "Postcode": "2195",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Lakemba",
+    "Type": "Primary",
+    "﻿Facility Name": "Al Hikma College"
+  },
+  {
+    "Latitude": "-37.707",
+    "Longtitude": "144.565",
+    "Postcode": "3338",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Melton South",
+    "Type": "Combined",
+    "﻿Facility Name": "Al Iman College"
+  },
+  {
+    "Latitude": "-33.9118",
+    "Longtitude": "151.05",
+    "Postcode": "2190",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Greenacre",
+    "Type": "Primary",
+    "﻿Facility Name": "Al Noori Muslim School"
+  },
+  {
+    "Latitude": "-33.9112",
+    "Longtitude": "151.049",
+    "Postcode": "2190",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Greenacre",
+    "Type": "Secondary",
+    "﻿Facility Name": "Al Noori Muslim School - Senior Campus"
+  },
+  {
+    "Latitude": "-33.9099",
+    "Longtitude": "151.056",
+    "Postcode": "2190",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Greenacre",
+    "Type": "Combined",
+    "﻿Facility Name": "Al Sadiq College"
+  },
+  {
+    "Latitude": "-33.9041",
+    "Longtitude": "151.024",
+    "Postcode": "2199",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Yagoona",
+    "Type": "Primary",
+    "﻿Facility Name": "Al Sadiq College Yagoona Campus"
+  },
+  {
+    "Latitude": "-37.6243",
+    "Longtitude": "145.038",
+    "Postcode": "3076",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Epping",
+    "Type": "Combined",
+    "﻿Facility Name": "Al Siraat College"
+  },
+  {
+    "Latitude": "-33.9337",
+    "Longtitude": "151.148",
+    "Postcode": "2205",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Arncliffe",
+    "Type": "Combined",
+    "﻿Facility Name": "Al Zahra College"
+  },
+  {
+    "Latitude": "-37.9083",
+    "Longtitude": "144.741",
+    "Postcode": "3030",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Point Cook",
+    "Type": "Combined",
+    "﻿Facility Name": "Alamanda K-9 College"
+  },
+  {
+    "Latitude": "-32.0442",
+    "Longtitude": "115.937",
+    "Postcode": "6147",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Langford",
+    "Type": "Combined",
+    "﻿Facility Name": "Al-Ameen College"
+  },
+  {
+    "Latitude": "-12.3802",
+    "Longtitude": "130.878",
+    "Postcode": "0810",
+    "Region Type": "Outer Regional",
+    "Sector": "Gov",
+    "Surburb": "Alawa",
+    "Type": "Primary",
+    "﻿Facility Name": "Alawa Primary School"
+  },
+  {
+    "Latitude": "-37.7443",
+    "Longtitude": "144.774",
+    "Postcode": "3021",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albanvale",
+    "Type": "Primary",
+    "﻿Facility Name": "Albanvale Primary School"
+  },
+  {
+    "Latitude": "-27.3573",
+    "Longtitude": "152.969",
+    "Postcode": "4035",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albany Creek",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albany Creek State High School"
+  },
+  {
+    "Latitude": "-27.3461",
+    "Longtitude": "152.971",
+    "Postcode": "4035",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albany Creek",
+    "Type": "Primary",
+    "﻿Facility Name": "Albany Creek State School"
+  },
+  {
+    "Latitude": "-27.3604",
+    "Longtitude": "152.973",
+    "Postcode": "4035",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albany Creek",
+    "Type": "Primary",
+    "﻿Facility Name": "Albany Hills State School"
+  },
+  {
+    "Latitude": "-35.0182",
+    "Longtitude": "117.891",
+    "Postcode": "6330",
+    "Region Type": "Outer Regional",
+    "Sector": "Gov",
+    "Surburb": "Albany",
+    "Type": "Primary",
+    "﻿Facility Name": "Albany Primary School"
+  },
+  {
+    "Latitude": "-37.9284",
+    "Longtitude": "145.173",
+    "Postcode": "3170",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Mulgrave",
+    "Type": "Primary",
+    "﻿Facility Name": "Albany Rise Primary School"
+  },
+  {
+    "Latitude": "-34.9911",
+    "Longtitude": "117.863",
+    "Postcode": "6330",
+    "Region Type": "Outer Regional",
+    "Sector": "Gov",
+    "Surburb": "Albany",
+    "Type": "Special",
+    "﻿Facility Name": "Albany Secondary Education Support Centre"
+  },
+  {
+    "Latitude": "-35.0198",
+    "Longtitude": "117.892",
+    "Postcode": "6330",
+    "Region Type": "Outer Regional",
+    "Sector": "Gov",
+    "Surburb": "Albany",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albany Senior High School"
+  },
+  {
+    "Latitude": "-37.8444",
+    "Longtitude": "144.947",
+    "Postcode": "3206",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albert Park",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albert Park College"
+  },
+  {
+    "Latitude": "-37.8425",
+    "Longtitude": "144.939",
+    "Postcode": "3207",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albert Park",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albert Park College-Environmental Arts Hub"
+  },
+  {
+    "Latitude": "-27.4662",
+    "Longtitude": "153.011",
+    "Postcode": "4064",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Milton",
+    "Type": "Special",
+    "﻿Facility Name": "Albert Park Flexible School"
+  },
+  {
+    "Latitude": "-37.8418",
+    "Longtitude": "144.952",
+    "Postcode": "3206",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albert Park",
+    "Type": "Primary",
+    "﻿Facility Name": "Albert Park Primary School"
+  },
+  {
+    "Latitude": "-28.8216",
+    "Longtitude": "153.272",
+    "Postcode": "2480",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "East Lismore",
+    "Type": "Primary",
+    "﻿Facility Name": "Albert Park Public School"
+  },
+  {
+    "Latitude": "-25.5468",
+    "Longtitude": "152.704",
+    "Postcode": "4650",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Maryborough",
+    "Type": "Primary",
+    "﻿Facility Name": "Albert State School"
+  },
+  {
+    "Latitude": "-34.8627, -38.6178",
+    "Longtitude": "138.513, 146.667",
+    "Postcode": "5014, 3971",
+    "Region Type": "Major Cities, Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Queenstown, Alberton",
+    "Type": "Primary",
+    "﻿Facility Name": "Alberton Primary School"
+  },
+  {
+    "Latitude": "-37.7627",
+    "Longtitude": "144.824",
+    "Postcode": "3020",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Sunshine North",
+    "Type": "Primary",
+    "﻿Facility Name": "Albion North Primary School"
+  },
+  {
+    "Latitude": "-34.5767",
+    "Longtitude": "150.773",
+    "Postcode": "2527",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albion Park",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albion Park High School"
+  },
+  {
+    "Latitude": "-34.5703",
+    "Longtitude": "150.773",
+    "Postcode": "2527",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albion Park",
+    "Type": "Primary",
+    "﻿Facility Name": "Albion Park Public School"
+  },
+  {
+    "Latitude": "-34.5676",
+    "Longtitude": "150.799",
+    "Postcode": "2527",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albion Park",
+    "Type": "Primary",
+    "﻿Facility Name": "Albion Park Rail Public School"
+  },
+  {
+    "Latitude": "-37.7779",
+    "Longtitude": "144.82",
+    "Postcode": "3020",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Albion",
+    "Type": "Primary",
+    "﻿Facility Name": "Albion Primary School"
+  },
+  {
+    "Latitude": "-42.8912",
+    "Longtitude": "147.326",
+    "Postcode": "7004",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Battery Point",
+    "Type": "Primary",
+    "﻿Facility Name": "Albuera Street Primary School"
+  },
+  {
+    "Latitude": "-36.0728",
+    "Longtitude": "146.915",
+    "Postcode": "2640",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Albury",
+    "Type": "Secondary",
+    "﻿Facility Name": "Albury High School"
+  },
+  {
+    "Latitude": "-36.0642",
+    "Longtitude": "146.932",
+    "Postcode": "2640",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Albury",
+    "Type": "Primary",
+    "﻿Facility Name": "Albury North Public School"
+  },
+  {
+    "Latitude": "-36.0825",
+    "Longtitude": "146.919",
+    "Postcode": "2640",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Albury",
+    "Type": "Primary",
+    "﻿Facility Name": "Albury Public School"
+  },
+  {
+    "Latitude": "-36.0778",
+    "Longtitude": "146.896",
+    "Postcode": "2640",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Albury",
+    "Type": "Primary",
+    "﻿Facility Name": "Albury West Public School"
+  },
+  {
+    "Latitude": "-22.8024",
+    "Longtitude": "134.455",
+    "Postcode": "0872",
+    "Region Type": "Very Remote",
+    "Sector": "Gov",
+    "Surburb": "Engawala",
+    "Type": "Combined",
+    "﻿Facility Name": "Alcoota School"
+  },
+  {
+    "Latitude": "-31.0558",
+    "Longtitude": "152.787",
+    "Postcode": "2440",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Yarravel",
+    "Type": "Primary",
+    "﻿Facility Name": "Aldavilla Public School"
+  },
+  {
+    "Latitude": "-38.1166",
+    "Longtitude": "145.162",
+    "Postcode": "3200",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Frankston North",
+    "Type": "Primary",
+    "﻿Facility Name": "Aldercourt Primary School"
+  },
+  {
+    "Latitude": "-35.0195",
+    "Longtitude": "138.749",
+    "Postcode": "5154",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Aldgate",
+    "Type": "Primary",
+    "﻿Facility Name": "Aldgate Primary School"
+  },
+  {
+    "Latitude": "-35.2693",
+    "Longtitude": "138.462",
+    "Postcode": "5173",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Aldinga",
+    "Type": "Primary",
+    "﻿Facility Name": "Aldinga Beach Primary School"
+  },
+  {
+    "Latitude": "-35.26771678",
+    "Longtitude": "138.470119",
+    "Postcode": "5173",
+    "Region Type": "Major Cities",
+    "Sector": "Gov",
+    "Surburb": "Aldinga",
+    "Type": "Combined",
+    "﻿Facility Name": "Aldinga Payinthi College"
+  },
+  {
+    "Latitude": "-25.5166",
+    "Longtitude": "152.689",
+    "Postcode": "4650",
+    "Region Type": "Inner Regional",
+    "Sector": "Gov",
+    "Surburb": "Maryborough",
+    "Type": "Secondary",
+    "﻿Facility Name": "Aldridge State High School"
+  },
+  {
+    "Latitude": "-21.0038",
+    "Longtitude": "134.406",
+    "Postcode": "0872",
+    "Region Type": "Very Remote",
+    "Sector": "Gov",
+    "Surburb": "Ali Curung",
+    "Type": "Combined",
+    "﻿Facility Name": "Alekarenge School"
+  },
+  {
+    "Latitude": "-32.929388",
+    "Longtitude": "151.768042",
+    "Postcode": "2300",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Cooks Hill",
+    "Type": "Special",
+    "﻿Facility Name": "Alesco Secondary College"
+  },
+  {
+    "Latitude": "-32.81107694",
+    "Longtitude": "151.4315689",
+    "Postcode": "2326",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Abermain",
+    "Type": "Special",
+    "﻿Facility Name": "Alesco Secondary College - Abermain Campus"
+  },
+  {
+    "Latitude": "-32.96278368",
+    "Longtitude": "151.6928001",
+    "Postcode": "2290",
+    "Region Type": "Major Cities",
+    "Sector": "Non-Gov",
+    "Surburb": "Charlestown",
+    "Type": "Special",
+    "﻿Facility Name": "Alesco Secondary College - Charlestown Campus"
+  },
+  {
+    "Latitude": "-32.1793",
+    "Longtitude": "152.5",
+    "Postcode": "2428",
+    "Region Type": "Inner Regional",
+    "Sector": "Non-Gov",
+    "Surburb": "Tuncurry",
+    "Type": "Special",
+    "﻿Facility Name": "Alesco Secondary College - Coast Campus"
+  }
+]

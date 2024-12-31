@@ -1,4 +1,4 @@
- "use client";
+"use client";
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@lib/utils';
@@ -39,31 +39,8 @@ const Sidebar = ({ className }: SidebarProps) => {
         <Navigation
           isCollapsed={isCollapsed}
           pathname={pathname}
-          menuItems={sidebarConfig.mainNav}
+          menuItems={[...sidebarConfig.mainNav, ...sidebarConfig.footerNav]}
         />
-      </div>
-      <div className="border-t border-gray-200 p-4">
-        {sidebarConfig.footerNav.map((item) => (
-          item.isExternal ? (
-            <a
-              key={item.name}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block px-4 py-2 text-white font-bold text-sm"
-            >
-              {item.name}
-            </a>
-          ) : (
-            <div key={item.name}>
-              <Navigation
-                isCollapsed={isCollapsed}
-                pathname={pathname}
-                menuItems={[item]}
-              />
-            </div>
-          )
-        ))}
       </div>
     </aside>
   );

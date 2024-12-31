@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@lib/utils';
 import MarketingSubMenu from './MarketingSubMenu';
 import SupportSubMenu from './SupportSubMenu';
@@ -26,6 +26,15 @@ interface NavigationProps {
 
 export default function Navigation({ isCollapsed, pathname, menuItems }: NavigationProps) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  // Keep parent menu open when subitems are active
+  useEffect(() => {
+    menuItems.forEach(item => {
+      if (item.subItems?.some(subItem => pathname === subItem.href)) {
+        setOpenMenu(item.name);
+      }
+    });
+  }, [pathname, menuItems]);
 
   return (
     <nav className="flex flex-col h-full">

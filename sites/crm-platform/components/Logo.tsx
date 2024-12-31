@@ -12,15 +12,11 @@ export default function Logo({ className = '', variant = 'light' }: LogoProps) {
   
   return (
     <Link href="/dashboard" className={`flex items-center ${className}`}>
-      <div className="relative w-12 h-12">
-        <Image
-          src="/images/cof__logo.png"
-          alt="Clean Ocean Logo"
-          fill
-          className="object-contain"
-          priority
-        />
-      </div>
+      <img
+        src="/images/cof_logo.png"
+        alt="Clean Ocean Logo"
+        className="h-12 w-auto"
+      />
       <div className={`font-bold text-2xl ml-3 ${textColor}`}>
         Clean Ocean
       </div>

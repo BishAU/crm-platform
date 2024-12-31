@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance - CRM</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, #1a365d, #2c5282);
+            z-index: -2;
+        }
+        
+        /* Enhanced CRT Effects */
+        .crt-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                rgba(255, 255, 255, 0.05) 1px,
+                rgba(255, 255, 255, 0.05) 2px
+            );
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
+            opacity: 0.8;
+        }
+        
+        .crt-flicker {
+            position: fixed;
+            inset: 0;
+            z-index: 99;
+            background: radial-gradient(
+                circle at center,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            pointer-events: none;
+            animation: flicker 0.15s infinite alternate-reverse;
+            opacity: 0.5;
+        }
+
+        .crt-aberration {
+            position: fixed;
+            inset: 0;
+            z-index: 98;
+            background: linear-gradient(
+                45deg,
+                rgba(255, 0, 0, 0.1),
+                rgba(0, 255, 0, 0.1),
+                rgba(0, 0, 255, 0.1)
+            );
+            mix-blend-mode: screen;
+            pointer-events: none;
+            animation: aberration 2s ease infinite alternate;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes aberration {
+            0% { transform: translate(0); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+
+        /* Auto-refresh countdown */
+        .countdown {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: monospace;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            z-index: 101;
+        }
+
+        /* Terminal-style typing effect */
+        .typing {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end);
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: calc(100% - 40px);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            text-align: center;
+        }
+        h1 {
+            color: #1a365d;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #2d3748;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 300px;
+            height: auto;
+            margin: 0 auto 30px;
+            display: block;
+            object-fit: contain;
+            max-width: 100%;
+        }
+        .sky {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+        .cloud {
+            position: absolute;
+            opacity: 0.8;
+        }
+        
+        .paraglider {
+            position: absolute;
+            font-size: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .paraglider.hover {
+            animation-play-state: paused;
+            transform: translateY(-100px) rotate(-15deg) scale(1.2);
+        }
+        .paraglider:nth-child(1) { 
+            top: 10%; 
+            animation: glideLeft 45s linear infinite;
+        }
+        .paraglider:nth-child(2) { 
+            top: 30%; 
+            animation: glideRight 45s linear infinite;
+            transform: scaleX(-1);
+        }
+        
+        .ocean {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 250px;
+            background: #2c5282;
+            overflow: hidden;
+        }
+        .wave {
+            position: absolute;
+            left: -100%;
+            width: 300%;
+            height: 100px;
+            background: url("wave.svg");
+            background-size: 200px 100px;
+            background-repeat: repeat-x;
+            transform-origin: center bottom;
+        }
+        .wave:nth-child(1) {
+            top: -80px;
+            opacity: 1;
+            z-index: 5;
+            animation: waveRoll 8s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: scaleY(1.2);
+        }
+        .wave:nth-child(2) {
+            top: -70px;
+            opacity: 0.8;
+            z-index: 4;
+            animation: waveRoll 6s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: scaleY(1.1);
+        }
+        .wave:nth-child(3) {
+            top: -60px;
+            opacity: 0.6;
+            z-index: 3;
+            animation: waveRoll 4s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: scaleY(1);
+        }
+        .wave:nth-child(4) {
+            top: -50px;
+            opacity: 0.4;
+            z-index: 2;
+            animation: waveRoll 3s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: scaleY(0.9);
+        }
+        .wave:nth-child(5) {
+            top: -40px;
+            opacity: 0.2;
+            z-index: 1;
+            animation: waveRoll 2s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: scaleY(0.8);
+        }
+        .surfer {
+            position: absolute;
+            font-size: 120px;
+            bottom: 120px;
+            left: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            z-index: 15;
+            transform-origin: bottom center;
+        }
+        .surfer.trick {
+            animation: surfTrick 1s ease-in-out;
+        }
+        .fish {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 10;
+            will-change: transform;
+        }
+        @keyframes floatLeft {
+            from { transform: translateX(-80px); }
+            to { transform: translateX(calc(100vw + 80px)); }
+        }
+        @keyframes floatRight {
+            from { transform: translateX(calc(100vw + 80px)) scaleX(-1); }
+            to { transform: translateX(-80px) scaleX(-1); }
+        }
+        @keyframes glideLeft {
+            0% { 
+                transform: translateX(-80px) translateY(0) rotate(5deg);
+            }
+            25% {
+                transform: translateX(calc(25vw - 80px)) translateY(-50px) rotate(2deg);
+            }
+            50% {
+                transform: translateX(calc(50vw - 80px)) translateY(0) rotate(5deg);
+            }
+            75% {
+                transform: translateX(calc(75vw - 80px)) translateY(-50px) rotate(2deg);
+            }
+            100% {
+                transform: translateX(calc(100vw + 80px)) translateY(0) rotate(5deg);
+            }
+        }
+        @keyframes glideRight {
+            0% { 
+                transform: translateX(calc(100vw + 80px)) translateY(0) rotate(-5deg);
+            }
+            25% {
+                transform: translateX(calc(75vw + 80px)) translateY(-50px) rotate(-2deg);
+            }
+            50% {
+                transform: translateX(calc(50vw + 80px)) translateY(0) rotate(-5deg);
+            }
+            75% {
+                transform: translateX(calc(25vw + 80px)) translateY(-50px) rotate(-2deg);
+            }
+            100% {
+                transform: translateX(-80px) translateY(0) rotate(-5deg);
+            }
+        }
+        @keyframes waveRoll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes surfTrick {
+            0% { transform: translate(-50%, 0) rotate(0deg); }
+            50% { transform: translate(-50%, -50px) rotate(180deg); }
+            100% { transform: translate(-50%, 0) rotate(360deg); }
+        }
+        @keyframes swimLeft {
+            from { transform: translateX(calc(100vw + 100px)); }
+            to { transform: translateX(-100px); }
+        }
+        @keyframes swimRight {
+            from { transform: translateX(-100px) scaleX(-1); }
+            to { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
+        }
+        @keyframes swimVertical {
+            0%, 100% { margin-bottom: 0; }
+            50% { margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="crt-overlay"></div>
+    <div class="crt-flicker"></div>
+    <div class="sky" id="sky">
+        <div class="paraglider">🪂</div>
+        <div class="paraglider">🪂</div>
+    </div>
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="surfer" id="surfer">🏄</div>
+    </div>
+    <div class="container">
+        <img src="cof_logo.png" alt="COF Indigenous Logo" class="logo">
+        <h1 class="typing">System Maintenance</h1>
+        <p class="typing" style="animation-delay: 1s">We're currently performing maintenance on our systems. We'll be back shortly.</p>
+        <p class="typing" style="animation-delay: 2s">Thank you for your patience.</p>
+        <p class="typing" style="animation-delay: 3s; font-family: monospace; color: #4a5568;">
+            Estimated completion time: 30 minutes
+        </p>
+    </div>
+    <div class="countdown">Checking system status in <span id="timer">30</span> seconds...</div>
+
+    <script>
+        // Auto refresh countdown
+        let timeLeft = 30;
+        const timerElement = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                location.reload();
+            }
+        }, 1000);
+    </script>
+
+    <script>
+        // Create random clouds
+        const sky = document.getElementById('sky');
+        const numClouds = 8;
+
+        function createCloud() {
+            const cloud = document.createElement('div');
+            cloud.className = 'cloud';
+            cloud.textContent = '☁️';
+            
+            // Random size (60px to 100px)
+            const size = 60 + Math.random() * 40;
+            cloud.style.fontSize = `${size}px`;
+            
+            // Random height (5% to 45% from top)
+            const height = 5 + Math.random() * 40;
+            cloud.style.top = `${height}%`;
+            
+            // Random speed (30s to 60s)
+            const speed = 30 + Math.random() * 30;
+            
+            // Balanced random direction (exactly 50/50 chance)
+            const goingRight = Math.floor(Math.random() * 2) === 1;
+            const animation = goingRight ? 'floatRight' : 'floatLeft';
+            cloud.style.animation = `${animation} ${speed}s linear infinite`;
+            
+            // Set starting position based on direction
+            cloud.style.left = goingRight ? 'calc(100vw + 80px)' : '-80px';
+            
+            sky.appendChild(cloud);
+
+            // Remove and recreate cloud after animation
+            setTimeout(() => {
+                sky.removeChild(cloud);
+                createCloud();
+            }, speed * 1000);
+        }
+
+        // Create initial clouds
+        for (let i = 0; i < numClouds; i++) {
+            setTimeout(() => createCloud(), i * 1000);
+        }
+
+        // Create fish in the ocean
+        const ocean = document.querySelector('.ocean');
+        const fish = ['🐠', '🐟', '🐡', '🦈'];
+        const numFish = 12;
+
+        function createFish() {
+            const fishEl = document.createElement('div');
+            fishEl.className = 'fish';
+            fishEl.textContent = fish[Math.floor(Math.random() * fish.length)];
+            
+            // Random starting position within the ocean
+            const randomY = Math.random() * (ocean.offsetHeight - 100) + 80;
+            fishEl.style.bottom = randomY + 'px';
+            
+            // Slow animation durations (slower than clouds)
+            const swimDuration = 35 + Math.random() * 30; // 35-65 seconds
+            const verticalDuration = 4 + Math.random() * 4; // 4-8 seconds
+            const delay = -Math.random() * 30;
+            const direction = Math.random() > 0.5 ? 'swimLeft' : 'swimRight';
+            
+            fishEl.style.animation = `
+                ${direction} ${swimDuration}s linear infinite ${delay}s,
+                swimVertical ${verticalDuration}s ease-in-out infinite ${delay}s
+            `;
+            
+            ocean.appendChild(fishEl);
+
+            // Recreate fish when animation ends
+            setTimeout(() => {
+                ocean.removeChild(fishEl);
+                createFish();
+            }, swimDuration * 1000);
+        }
+
+        // Create multiple fish
+        for (let i = 0; i < numFish; i++) {
+            createFish();
+        }
+
+        // Interactive surfer with mouse tracking
+        const surfer = document.getElementById('surfer');
+        let isDoingTrick = false;
+
+        surfer.addEventListener('click', () => {
+            if (!isDoingTrick) {
+                isDoingTrick = true;
+                surfer.classList.add('trick');
+                setTimeout(() => {
+                    surfer.classList.remove('trick');
+                    isDoingTrick = false;
+                }, 1000);
+            }
+        });
+
+        // Make surfer follow mouse both horizontally and vertically
+        document.addEventListener('mousemove', (e) => {
+            if (!isDoingTrick) {
+                const oceanRect = ocean.getBoundingClientRect();
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                
+                // Calculate horizontal movement (full width with increased responsiveness)
+                const moveX = (mouseX - window.innerWidth / 2) * 0.2; // Increased from 0.1
+                
+                // Calculate vertical movement (limited to stay above water)
+                const maxHeight = oceanRect.top + 50;
+                const minHeight = oceanRect.top + oceanRect.height - 150;
+                const targetY = Math.min(Math.max(mouseY, maxHeight), minHeight);
+                const moveY = (targetY - (oceanRect.top + oceanRect.height - 150)) * 0.8; // Increased from 0.5
+                
+                // Apply combined transform with enhanced rotation
+                surfer.style.transform = `
+                    translate(
+                        calc(-50% + ${moveX}px), 
+                        ${-moveY}px
+                    ) 
+                    rotate(${moveX * 0.05}deg)
+                `;
+            }
+        });
+
+        // Smooth paraglider hover effect
+        document.querySelectorAll('.paraglider').forEach(paraglider => {
+            paraglider.addEventListener('mouseover', () => {
+                paraglider.classList.add('hover');
+            });
+            paraglider.addEventListener('mouseout', () => {
+                paraglider.classList.remove('hover');
+            });
+        });
+    </script>
+</body>
+</html>

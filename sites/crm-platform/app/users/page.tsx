@@ -5,87 +5,128 @@ import DataGrid from '@components/DataGrid';
 import AuthenticatedLayout from '@components/AuthenticatedLayout';
 import { getFieldOrder } from '@lib/field-visibility-client';
 
-interface GridAction {
-  label: string;
-  action: (userId: string) => void;
-}
-
 interface User {
   id: string;
-  name: string;
+  username: string;
   email: string;
-  active: boolean;
+  role: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('username');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const fetchUsers = async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: params.page.toString(),
+        limit: params.limit.toString(),
+        ...(params.search && { search: params.search }),
+        ...(params.sortBy && { sortBy: params.sortBy }),
+        ...(params.sortOrder && { sortOrder: params.sortOrder })
+      });
+
+      const response = await fetch(`/api/users?${queryParams}`);
+      const data = await response.json();
+      setUsers(data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        ...data.pagination
+      }));
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('/api/users');
-        const data = await response.json();
-        setUsers(data.data || []);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchUsers({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: searchTerm,
+      sortBy,
+      sortOrder
+    });
+  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
 
-    fetchUsers();
-  }, []);
-
-  const handleSave = async (updatedUser: Record<string, any>) => {
+  const handleSave = async (updatedRecord: Record<string, any>) => {
     try {
-      const response = await fetch(`/api/users/${updatedUser.id}`, {
+      const response = await fetch(`/api/users/${updatedRecord.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedUser),
+        body: JSON.stringify(updatedRecord),
       });
 
       if (!response.ok) {
         throw new Error('Failed to update user');
       }
 
-      // Refresh the user list
-      const refreshResponse = await fetch('/api/users');
-      const refreshData = await refreshResponse.json();
-      setUsers(refreshData.data || []);
+      // Refresh the current page
+      fetchUsers({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchTerm,
+        sortBy,
+        sortOrder
+      });
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
     }
   };
 
-  const handlePasswordChange = async (userId: string, newPassword: string) => {
-    try {
-      const response = await fetch(`/api/users/${userId}/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password: newPassword }),
-      });
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
 
-      if (!response.ok) {
-        throw new Error('Failed to change password');
-      }
-    } catch (error) {
-      console.error('Error changing password:', error);
-      throw error;
-    }
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPagination(prev => ({
+      ...prev,
+      page: 1 // Reset to first page on new search
+    }));
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSortBy(field);
+    setSortOrder(order);
   };
 
   const defaultColumns = [
-    { field: 'name', headerName: 'Name', isPrimary: true },
+    { field: 'username', headerName: 'Username', isPrimary: true },
     { field: 'email', headerName: 'Email' },
-    { field: 'active', headerName: 'Active', type: 'boolean' },
+    { field: 'role', headerName: 'Role' },
     { field: 'createdAt', headerName: 'Created At', active: false },
     { field: 'updatedAt', headerName: 'Updated At', active: false },
     { field: 'id', headerName: 'ID', active: false },
@@ -99,7 +140,7 @@ export default function UsersPage() {
     .map(field => defaultColumns.find(col => col.field === field))
     .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
-  if (loading) {
+  if (loading && !users.length) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
@@ -117,17 +158,15 @@ export default function UsersPage() {
           entityType="user"
           onSave={handleSave}
           loading={loading}
-          additionalActions={[
-            {
-              label: 'Change Password',
-              action: (userId) => {
-                const newPassword = prompt('Enter new password:');
-                if (newPassword) {
-                  handlePasswordChange(userId, newPassword);
-                }
-              }
-            }
-          ]}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.limit,
+            totalPages: pagination.totalPages,
+            totalItems: pagination.total
+          }}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onSort={handleSort}
         />
       </div>
     </AuthenticatedLayout>

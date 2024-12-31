@@ -8,35 +8,73 @@ import { getFieldOrder } from '@lib/field-visibility-client';
 interface Customer {
   id: string;
   name: string;
+  contact: string;
   email: string;
   phone: string;
-  address: string;
   createdAt: string;
   updatedAt: string;
+}
+
+interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) => {
     try {
-      const response = await fetch('/api/customers');
-      if (!response.ok) {
-        throw new Error('Failed to fetch customers');
-      }
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: params.page.toString(),
+        limit: params.limit.toString(),
+        ...(params.search && { search: params.search }),
+        ...(params.sortBy && { sortBy: params.sortBy }),
+        ...(params.sortOrder && { sortOrder: params.sortOrder })
+      });
+
+      const response = await fetch(`/api/customers?${queryParams}`);
       const data = await response.json();
-      setCustomers(data);
+      setCustomers(data.data || []);
+      setPagination(prev => ({
+        ...prev,
+        ...data.pagination
+      }));
     } catch (error) {
       console.error('Error fetching customers:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCustomers({
+      page: pagination.page,
+      limit: pagination.limit,
+      search: searchTerm,
+      sortBy,
+      sortOrder
+    });
+  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
 
   const handleSave = async (updatedRecord: Record<string, any>) => {
     try {
@@ -52,56 +90,48 @@ export default function CustomersPage() {
         throw new Error('Failed to update customer');
       }
 
-      const updatedCustomer = await response.json() as Customer;
-
-      // Update the local state
-      setCustomers(prev =>
-        prev.map(customer =>
-          customer.id === updatedCustomer.id ? updatedCustomer : customer
-        )
-      );
+      // Refresh the current page
+      fetchCustomers({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchTerm,
+        sortBy,
+        sortOrder
+      });
     } catch (error) {
       console.error('Error updating customer:', error);
       throw error;
     }
   };
 
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPagination(prev => ({
+      ...prev,
+      page: 1 // Reset to first page on new search
+    }));
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSortBy(field);
+    setSortOrder(order);
+  };
+
   const defaultColumns = [
-    {
-      field: 'name',
-      headerName: 'Name',
-      isPrimary: true,
-      renderCell: (value: any) => {
-        return <a href={`/customers/${value.id}`} className="text-ocean-600 hover:text-ocean-800">{value.name}</a>
-      }
-    },
-    {
-      field: 'email',
-      headerName: 'Email',
-    },
-    {
-      field: 'phone',
-      headerName: 'Phone',
-    },
-    {
-      field: 'address',
-      headerName: 'Address',
-    },
-    {
-      field: 'createdAt',
-      headerName: 'Created At',
-      active: false
-    },
-    {
-      field: 'updatedAt',
-      headerName: 'Updated At',
-      active: false
-    },
-    {
-      field: 'id',
-      headerName: 'ID',
-      active: false
-    },
+    { field: 'name', headerName: 'Name', isPrimary: true },
+    { field: 'contact', headerName: 'Contact' },
+    { field: 'email', headerName: 'Email' },
+    { field: 'phone', headerName: 'Phone' },
+    { field: 'createdAt', headerName: 'Created At', active: false },
+    { field: 'updatedAt', headerName: 'Updated At', active: false },
+    { field: 'id', headerName: 'ID', active: false },
   ];
 
   // Get the ordered field names from localStorage or use default order
@@ -112,7 +142,7 @@ export default function CustomersPage() {
     .map(field => defaultColumns.find(col => col.field === field))
     .filter((col): col is typeof defaultColumns[0] => col !== undefined);
 
-  if (loading) {
+  if (loading && !customers.length) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
@@ -130,6 +160,15 @@ export default function CustomersPage() {
           entityType="customer"
           onSave={handleSave}
           loading={loading}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.limit,
+            totalPages: pagination.totalPages,
+            totalItems: pagination.total
+          }}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onSort={handleSort}
         />
       </div>
     </AuthenticatedLayout>

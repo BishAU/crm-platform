@@ -1,8 +1,9 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from 'app/api/auth/[...nextauth]/config';
-import { prisma } from 'lib/prisma';
+import { NextRequest } from 'next/server';
+import { withAuth, jsonResponse } from '../../../lib/api';
+import { Session } from 'next-auth';
 
 export async function GET(request: NextRequest) {
-  return NextResponse.json({ message: 'Test route' });
+  return withAuth(request, async (req: NextRequest, session: Session) => {
+    return jsonResponse({ message: 'Test route' });
+  });
 }

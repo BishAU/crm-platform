@@ -1,30 +1,21 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
-import { getServerSession } from 'next-auth';
-import { authOptions } from './api/auth/[...nextauth]/config';
-import { SessionProvider } from './providers';
-
-const inter = Inter({ subsets: ['latin'] });
+import { Providers } from './providers';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Clean Ocean CRM',
-  description: 'Clean Ocean CRM Platform',
+  title: 'CRM Platform',
+  description: 'Customer Relationship Management Platform',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
-
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full`}>
-        <SessionProvider session={session}>
-          {children}
-        </SessionProvider>
+    <html lang="en">
+      <body className="min-h-screen bg-gray-50">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

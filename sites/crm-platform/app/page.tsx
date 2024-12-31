@@ -1,33 +1,12 @@
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]/config';
 
-"use client";
-import React from 'react';
-import AuthenticatedLayout from './components/AuthenticatedLayout';
-import DataCard from './components/DataCard';
-import OutfallList from './components/OutfallList';
-import LoadingState from './components/LoadingState';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+export const dynamic = 'force-dynamic';
 
-const Home = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  if (status === 'loading') {
-    return <LoadingState />;
-  }
-
-  if (status === 'unauthenticated') {
-    router.push('/login');
-    return null;
-  }
-
-  return (
-    <AuthenticatedLayout>
-      <div className="flex flex-col gap-4">
-        <DataCard title="Dashboard" description="Welcome to the CRM Platform" />
-      </div>
-    </AuthenticatedLayout>
-  );
-};
-
-export default Home;
+export default async function HomePage() {
+  const session = await getServerSession(authOptions);
+  
+  // Redirect to dashboard if logged in, otherwise to login page
+  redirect(session ? '/dashboard' : '/login');
+}
