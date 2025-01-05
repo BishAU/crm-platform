@@ -8,6 +8,7 @@ export const sidebarConfig = {
         { name: 'Outfalls', href: '/outfalls?view=grid' },
         { name: 'Water Authorities', href: '/water-authorities?view=grid' },
         { name: 'Indigenous Communities', href: '/indigenous-communities?view=grid' },
+        { name: 'Land Councils', href: '/land-councils?view=grid' },
         { name: 'Politicians', href: '/politicians?view=grid' },
         { name: 'Observations', href: '/observations?view=grid' },
         { name: 'Customers', href: '/customers?view=grid' },
