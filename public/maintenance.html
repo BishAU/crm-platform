@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance - CRM Platform</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .error-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .error-container img {
+            width: 200px;
+            margin-bottom: 2rem;
+        }
+
+        .error-container h1 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .error-container p {
+            color: #4b5563;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .error-container a {
+            color: #2563eb;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .error-container a:hover {
+            color: #1d4ed8;
+        }
+
+        /* Ocean Animation */
+        .ocean {
+            height: 5%;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background: #015871;
+        }
+
+        .wave {
+            background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg) repeat-x;
+            position: absolute;
+            width: 6400px;
+            height: 198px;
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: translate3d(0, 0, 0);
+            bottom: 0;
+        }
+
+        .wave:nth-of-type(2) {
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+            opacity: 1;
+        }
+
+        @keyframes wave {
+            0% { margin-left: 0; }
+            100% { margin-left: -1600px; }
+        }
+
+        @keyframes swell {
+            0%, 100% { transform: translate3d(0, -25px, 0); }
+            50% { transform: translate3d(0, 5px, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <div class="error-container">
+        <img src="/images/cof_logo.png" alt="Logo" class="logo">
+        <h1>Under Maintenance</h1>
+        <p>We're currently performing some scheduled maintenance. We'll be back online shortly.</p>
+        <p>Thank you for your patience.</p>
+        <a href="https://cleanocean.org/">Visit us at cleanocean.org</a>
+    </div>
+
+    <script>
+        // Add any necessary JavaScript animations here
+        function checkStatus() {
+            fetch('/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                })
+                .catch(() => {
+                    // Continue checking
+                    setTimeout(checkStatus, 5000);
+                });
+        }
+
+        // Start checking status after 5 seconds
+        setTimeout(checkStatus, 5000);
+    </script>
+</body>
+</html>

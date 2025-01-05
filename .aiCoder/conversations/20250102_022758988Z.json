@@ -1,0 +1,13 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi\n"
+    }
+  ],
+  "title": "",
+  "id": "20250102_022758988Z",
+  "targetFile": null,
+  "chatMode": "chat",
+  "lastModified": "2025-01-02T02:27:58.991Z"
+}

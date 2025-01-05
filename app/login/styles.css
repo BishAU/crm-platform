@@ -1,0 +1,118 @@
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f4f8;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-form {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  width: 300px;
+  z-index: 1;
+  position: relative;
+}
+
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #334756;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+  color: #334756;
+  transition: border-color 0.2s ease;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.login-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.login-form button {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.login-form button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.login-form button:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.error-message {
+  text-align: center;
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  background-color: #fee2e2;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #fecaca;
+}
+
+/* Ocean Animation */
+.ocean {
+  height: 15%;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: #015871;
+}
+
+.wave {
+  background: linear-gradient(180deg, #015871 0%, #0093E9 100%);
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  animation: wave 10s linear infinite;
+  transform-origin: center bottom;
+  bottom: 0;
+}
+
+.wave:nth-of-type(2) {
+  animation: wave 15s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(0) translateZ(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0) scaleY(0.8);
+  }
+  100% {
+    transform: translateX(-50%) translateZ(0) scaleY(1);
+  }
+}
