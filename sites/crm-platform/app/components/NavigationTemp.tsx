@@ -5,65 +5,18 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { cn } from '@lib/utils';
 import React from 'react';
-import {
-  BarChart3,
-  Building,
-  Building2,
-  Droplet,
-  Map,
-  MessageSquare,
-  Users,
-  List,
-  FileText,
-  Settings,
-  User,
-  Import,
-  LogOut,
-  UserRound,
-  Landmark,
-  Eye,
-  Store,
-  Factory,
-  Waves,
-  Ticket,
-} from 'lucide-react';
-
-const icons = {
-  BarChart3,
-  Building,
-  Building2,
-  Droplet,
-  Map,
-  MessageSquare,
-  Users,
-  List,
-  FileText,
-  Settings,
-  User,
-  Import,
-  LogOut,
-  UserRound,
-  Landmark,
-  Eye,
-  Store,
-  Factory,
-  Waves,
-  Ticket,
-};
 
 interface NavigationProps {
   isCollapsed: boolean;
   menuItems: {
     name: string;
     href: string;
-    icon: string;
     onClick?: string;
     isButton?: boolean;
     isExternal?: boolean;
     subItems?: {
       name: string;
       href: string;
-      icon: string;
     }[];
   }[];
 }
@@ -81,15 +34,10 @@ export default function Navigation({ isCollapsed, menuItems }: NavigationProps) 
     });
   }, [pathname, menuItems]);
 
-  const renderIcon = (iconName: string) => {
-    const IconComponent = icons[iconName as keyof typeof icons];
-    return IconComponent ? <IconComponent className="w-5 h-5" /> : null;
-  };
-
   return (
     <nav className="flex flex-col">
       <div className="px-2 py-2 space-y-1">
-        {menuItems.map(({ name, href, icon, subItems, isButton, onClick, isExternal }) => {
+        {menuItems.map(({ name, href, subItems, isButton, onClick, isExternal }) => {
           const hasSubItems = subItems && subItems.length > 0;
           const isOpen = openMenu === name;
           const isActive = pathname === href || subItems?.some(subItem => pathname === subItem.href);
@@ -113,12 +61,6 @@ export default function Navigation({ isCollapsed, menuItems }: NavigationProps) 
                     }
                   }}
                 >
-                  <span className={cn(
-                    'mr-3',
-                    isActive ? 'text-white' : 'text-white/80'
-                  )}>
-                    {renderIcon(icon)}
-                  </span>
                   {!isCollapsed && (
                     <div className="flex-1 flex justify-between items-center">
                       <span>{name}</span>
@@ -144,12 +86,6 @@ export default function Navigation({ isCollapsed, menuItems }: NavigationProps) 
                   aria-haspopup={hasSubItems ? 'true' : undefined}
                   {...linkProps}
                 >
-                  <span className={cn(
-                    'mr-3',
-                    isActive ? 'text-white' : 'text-white/80'
-                  )}>
-                    {renderIcon(icon)}
-                  </span>
                   {!isCollapsed && (
                     <div className="flex-1 flex justify-between items-center">
                       <span>{name}</span>
@@ -175,12 +111,6 @@ export default function Navigation({ isCollapsed, menuItems }: NavigationProps) 
                         pathname === subItem.href ? 'bg-[#005f9e]' : 'hover:bg-[#005f9e]'
                       )}
                     >
-                      <span className={cn(
-                        'mr-3',
-                        pathname === subItem.href ? 'text-white' : 'text-white/80'
-                      )}>
-                        {renderIcon(subItem.icon)}
-                      </span>
                       {subItem.name}
                     </Link>
                   ))}
