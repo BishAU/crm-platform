@@ -1,3 +1,4 @@
+m run dev
 # Tasks
 
 ## Sunday Push to GitHub

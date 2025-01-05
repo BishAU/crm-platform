@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { cn } from '@lib/utils';
+import { cn } from '@/lib/utils';
 import Navigation from './NavigationTemp';
 import { sidebarConfig } from './sidebarConfig';
 import Image from 'next/image';

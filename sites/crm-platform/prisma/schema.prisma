@@ -279,6 +279,23 @@ model WaterAuthority {
   outfalls              Outfall[] @relation("WaterAuthorityToOutfalls")
 }
 
+model Observation {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  type           String
+  contact_name   String
+  contact_email  String
+  contact_phone  String?
+  media_images   String[]
+  media_video    String?
+  status         String   @default("pending")
+  source         String   @default("external")
+  observedAt     DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 model Campaign {
   id             String    @id @default(cuid())
   name           String

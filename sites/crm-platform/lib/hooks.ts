@@ -19,7 +19,7 @@ export function useEntityData<T>(options: FetchOptions) {
         if (!params?.id) {
           throw new Error('No ID provided');
         }
-        const response = await fetch(`${options.endpoint}/${params.id}`);
+        const response = await fetch(`${options.endpoint}?slug=${params.id}`);
         if (!response.ok) {
           throw new Error(options.errorMessage || 'Failed to fetch data');
         }

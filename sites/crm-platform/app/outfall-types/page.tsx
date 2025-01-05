@@ -1,41 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '@components/DataGrid';
-import AuthenticatedLayout from '@components/AuthenticatedLayout';
-import { getFieldOrder } from '@lib/field-visibility-client';
+import { useSearchParams } from 'next/navigation';
+import DataGrid from '../components/DataGrid';
+import AuthenticatedLayout from '../components/AuthenticatedLayout';
+import { getFieldOrder } from '../lib/field-visibility-client';
 
 interface OutfallType {
   id: string;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PaginationState {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+  count: number;
 }
 
 export default function OutfallTypesPage() {
+  const searchParams = useSearchParams();
+  const initialView = (searchParams?.get('view') as 'grid' | 'list') || 'grid';
+
   const [types, setTypes] = useState<OutfallType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('name');
+  const [sortField, setSortField] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [view, setView] = useState<'grid' | 'list'>(initialView);
 
   const fetchTypes = async (params: {
     page: number;
-    limit: number;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
@@ -44,7 +37,6 @@ export default function OutfallTypesPage() {
       setLoading(true);
       const queryParams = new URLSearchParams({
         page: params.page.toString(),
-        limit: params.limit.toString(),
         ...(params.search && { search: params.search }),
         ...(params.sortBy && { sortBy: params.sortBy }),
         ...(params.sortOrder && { sortOrder: params.sortOrder })
@@ -52,11 +44,9 @@ export default function OutfallTypesPage() {
 
       const response = await fetch(`/api/outfall-types?${queryParams}`);
       const data = await response.json();
-      setTypes(data.data || []);
-      setPagination(prev => ({
-        ...prev,
-        ...data.pagination
-      }));
+      setTypes(data.items || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalItems(data.totalItems || 0);
     } catch (error) {
       console.error('Error fetching outfall types:', error);
     } finally {
@@ -65,106 +55,49 @@ export default function OutfallTypesPage() {
   };
 
   useEffect(() => {
-    fetchTypes({
-      page: pagination.page,
-      limit: pagination.limit,
+    void fetchTypes({
+      page: currentPage,
       search: searchTerm,
-      sortBy,
+      sortBy: sortField,
       sortOrder
     });
-  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
-
-  const handleSave = async (updatedRecord: Record<string, any>) => {
-    try {
-      const response = await fetch(`/api/outfall-types/${updatedRecord.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedRecord),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update outfall type');
-      }
-
-      // Refresh the current page
-      fetchTypes({
-        page: pagination.page,
-        limit: pagination.limit,
-        search: searchTerm,
-        sortBy,
-        sortOrder
-      });
-    } catch (error) {
-      console.error('Error updating outfall type:', error);
-      throw error;
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({
-      ...prev,
-      page: newPage
-    }));
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchTerm, sortField, sortOrder]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setPagination(prev => ({
-      ...prev,
-      page: 1 // Reset to first page on new search
-    }));
+    setCurrentPage(1);
   };
 
   const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSortBy(field);
+    setSortField(field);
     setSortOrder(order);
   };
 
-  const defaultColumns = [
-    { field: 'name', headerName: 'Name', isPrimary: true },
-    { field: 'description', headerName: 'Description' },
-    { field: 'createdAt', headerName: 'Created At', active: false },
-    { field: 'updatedAt', headerName: 'Updated At', active: false },
-    { field: 'id', headerName: 'ID', active: false },
+  const columns = [
+    { field: 'name', header: 'Type', sortable: true },
+    { field: 'description', header: 'Description', sortable: true },
+    { field: 'count', header: 'Count', sortable: true }
   ];
-
-  // Get the ordered field names from localStorage or use default order
-  const orderedFields = getFieldOrder('outfall-type', defaultColumns.map(col => col.field));
-
-  // Reorder columns based on the saved field order
-  const columns = orderedFields
-    .map(field => defaultColumns.find(col => col.field === field))
-    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
-
-  if (loading && !types.length) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
-      </div>
-    );
-  }
 
   return (
     <AuthenticatedLayout>
       <div className="p-8">
         <h1 className="text-2xl font-bold text-ocean-900 mb-6">Outfall Types</h1>
         <DataGrid
-          rows={types}
+          data={types}
           columns={columns}
-          entityType="outfall-type"
-          onSave={handleSave}
-          loading={loading}
           pagination={{
-            page: pagination.page,
-            pageSize: pagination.limit,
-            totalPages: pagination.totalPages,
-            totalItems: pagination.total
+            currentPage,
+            totalPages,
+            totalItems
           }}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
+          view={view}
+          onViewChange={setView}
           onSearch={handleSearch}
           onSort={handleSort}
+          loading={loading}
         />
       </div>
     </AuthenticatedLayout>

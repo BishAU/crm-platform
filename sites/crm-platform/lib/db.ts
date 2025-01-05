@@ -1,4 +1,3 @@
-
 import { prisma as prismaClient } from '../app/lib/prisma';
 export const prisma = prismaClient;
 import { Prisma, PrismaClient } from '@prisma/client';
@@ -93,6 +92,7 @@ export async function findMany(
     where?: Record<string, any>;
     orderBy?: Record<string, 'asc' | 'desc'>;
     take?: number;
+    skip?: number;
   }
 ) {
   const includeObj = options?.include?.reduce(
@@ -104,7 +104,19 @@ export async function findMany(
     where: options?.where,
     include: includeObj,
     orderBy: options?.orderBy,
-    take: options?.take
+    take: options?.take,
+    skip: options?.skip
+  });
+}
+
+export async function count(
+  table: ModelName,
+  options?: {
+    where?: Record<string, any>;
+  }
+) {
+  return (prisma[table] as any).count({
+    where: options?.where
   });
 }
 

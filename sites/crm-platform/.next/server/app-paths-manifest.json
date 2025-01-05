@@ -1,9 +1,4 @@
 {
-  "/outfalls/page": "app/outfalls/page.js",
-  "/water-authorities/page": "app/water-authorities/page.js",
-  "/people/page": "app/people/page.js",
-  "/login/page": "app/login/page.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/import/page": "app/import/page.js"
+  "/import/page": "app/import/page.js",
+  "/api/import/analyze-csv/route": "app/api/import/analyze-csv/route.js"
 }

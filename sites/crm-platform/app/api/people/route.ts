@@ -1,49 +1,69 @@
-import { NextRequest } from 'next/server';
-import { jsonResponse, errorResponse } from '../../../lib/api';
-import * as db from '../../../lib/db';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export const dynamic = 'force-dynamic';
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const countOnly = searchParams.get('count') === 'true';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'lastName';
+    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
-interface User {
-  id: string;
-  name?: string;
-  email?: string;
-  isAdmin: boolean;
-  firstName?: string;
-  lastName?: string;
-  company?: string;
-  phone?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export async function GET(request: NextRequest) {
-    try {
-      const searchParams = request.nextUrl.searchParams;
-      const countOnly = searchParams.get('count') === 'true';
-
-      if (countOnly) {
-        const people = await db.findMany('user' as any, {
-          where: {
-            isAdmin: false // Only count non-admin users as "people"
-          }
-        }) as User[];
-        return jsonResponse({ count: people.length });
-      }
-
-      const people = await db.findMany('user' as any, {
+    if (countOnly) {
+      const count = await prisma.user.count({
         where: {
-          isAdmin: false,
-          ...Object.fromEntries(
-            Array.from(searchParams.entries())
-              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
-          )
+          NOT: { isAdmin: true } // Exclude admin users from count
         }
       });
-
-      return jsonResponse({ data: people });
-    } catch (error) {
-      console.error('Error fetching people:', error);
-      return errorResponse('Failed to fetch people', 500);
+      return NextResponse.json({ count });
     }
+
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+
+    const where: Prisma.UserWhereInput = {
+      NOT: { isAdmin: true }, // Exclude admin users
+      ...(search ? {
+        OR: [
+          { firstName: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { lastName: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { phone: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { company: { contains: search, mode: Prisma.QueryMode.insensitive } }
+        ]
+      } : {})
+    };
+
+    const [items, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { [sortBy]: sortOrder },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          company: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      }),
+      prisma.user.count({ where })
+    ]);
+
+    return NextResponse.json({
+      items,
+      page,
+      totalPages: Math.ceil(total / pageSize),
+      totalItems: total
+    });
+  } catch (error) {
+    console.error('Error fetching people:', error);
+    return NextResponse.json({ message: 'Error fetching people' }, { status: 500 });
+  }
 }

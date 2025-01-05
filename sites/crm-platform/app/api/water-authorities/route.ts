@@ -1,39 +1,59 @@
-import { NextRequest } from 'next/server';
-import { jsonResponse, errorResponse } from '../../../lib/api';
-import * as db from '../../../lib/db';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export const dynamic = 'force-dynamic';
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const countOnly = searchParams.get('count') === 'true';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'name';
+    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
-interface WaterAuthority {
-  id: string;
-  name: string;
-  indigenousCommunities?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export async function GET(request: NextRequest) {
-    try {
-      const searchParams = request.nextUrl.searchParams;
-      const countOnly = searchParams.get('count') === 'true';
-
-      if (countOnly) {
-        const authorities = await db.findMany('waterAuthority' as any, {}) as WaterAuthority[];
-        return jsonResponse({ count: authorities.length });
-      }
-
-      const authorities = await db.findMany('waterAuthority' as any, {
-        where: {
-          ...Object.fromEntries(
-            Array.from(searchParams.entries())
-              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
-          )
-        }
-      });
-
-      return jsonResponse({ data: authorities });
-    } catch (error) {
-      console.error('Error fetching water authorities:', error);
-      return errorResponse('Failed to fetch water authorities', 500);
+    if (countOnly) {
+      const count = await prisma.waterAuthority.count();
+      return NextResponse.json({ count });
     }
+
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+
+    const where: Prisma.WaterAuthorityWhereInput = search ? {
+      OR: [
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { indigenousCommunities: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      ]
+    } : {};
+
+    const [items, total] = await Promise.all([
+      prisma.waterAuthority.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { [sortBy]: sortOrder },
+        include: {
+          outfalls: {
+            select: {
+              id: true
+            }
+          }
+        }
+      }),
+      prisma.waterAuthority.count({ where })
+    ]);
+
+    return NextResponse.json({
+      items: items.map(item => ({
+        ...item,
+        outfallCount: item.outfalls.length
+      })),
+      page,
+      totalPages: Math.ceil(total / pageSize),
+      totalItems: total
+    });
+  } catch (error) {
+    console.error('Error fetching water authorities:', error);
+    return NextResponse.json({ message: 'Error fetching water authorities' }, { status: 500 });
+  }
 }

@@ -1,40 +1,74 @@
-import { NextRequest } from 'next/server';
-import { jsonResponse, errorResponse } from '../../../lib/api';
-import * as db from '../../../lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
+    const pageSize = 10;
 
-interface OutfallObservation {
-  id: string;
-  outfallId: string;
-  date: Date;
-  flow?: string;
-  createdAt: Date;
-  updatedAt: Date;
+    // Build filter conditions
+    const where = search
+      ? {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+            { type: { contains: search, mode: 'insensitive' } },
+            { contact_name: { contains: search, mode: 'insensitive' } },
+            { contact_email: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    // Get total count for pagination
+    const totalItems = await prisma.observation.count({ where });
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Get paginated and sorted results
+    const items = await prisma.observation.findMany({
+      where,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return NextResponse.json({
+      items,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error('Error fetching observations:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch observations' },
+      { status: 500 }
+    );
+  }
 }
 
-export async function GET(request: NextRequest) {
-    try {
-      const searchParams = request.nextUrl.searchParams;
-      const countOnly = searchParams.get('count') === 'true';
-
-      if (countOnly) {
-        const observations = await db.findMany('outfallObservation' as any, {}) as OutfallObservation[];
-        return jsonResponse({ count: observations.length });
+export async function POST(req: NextRequest) {
+  try {
+    const data = await req.json();
+    const observation = await prisma.observation.create({
+      data: {
+        ...data,
+        status: 'pending',
+        source: 'internal'
       }
+    });
 
-      const observations = await db.findMany('outfallObservation' as any, {
-        where: {
-          ...Object.fromEntries(
-            Array.from(searchParams.entries())
-              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
-          )
-        }
-      });
-
-      return jsonResponse({ data: observations });
-    } catch (error) {
-      console.error('Error fetching observations:', error);
-      return errorResponse('Failed to fetch observations', 500);
-    }
+    return NextResponse.json(observation, { status: 201 });
+  } catch (error) {
+    console.error('Error creating observation:', error);
+    return NextResponse.json(
+      { error: 'Failed to create observation' },
+      { status: 500 }
+    );
+  }
 }

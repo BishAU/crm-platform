@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '@components/DataGrid';
-import AuthenticatedLayout from '@components/AuthenticatedLayout';
-import { getFieldOrder } from '@lib/field-visibility-client';
+import { useSearchParams } from 'next/navigation';
+import DataGrid from '../components/DataGrid';
+import AuthenticatedLayout from '../components/AuthenticatedLayout';
+import { getFieldOrder } from '../lib/field-visibility-client';
 
 interface IndigenousCommunity {
   id: string;
@@ -14,29 +15,22 @@ interface IndigenousCommunity {
   updatedAt: string;
 }
 
-interface PaginationState {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export default function IndigenousCommunitiesPage() {
+  const searchParams = useSearchParams();
+  const initialView = (searchParams?.get('view') as 'grid' | 'list') || 'grid';
+
   const [communities, setCommunities] = useState<IndigenousCommunity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('name');
+  const [sortField, setSortField] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [view, setView] = useState<'grid' | 'list'>(initialView);
 
   const fetchCommunities = async (params: {
     page: number;
-    limit: number;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
@@ -45,7 +39,6 @@ export default function IndigenousCommunitiesPage() {
       setLoading(true);
       const queryParams = new URLSearchParams({
         page: params.page.toString(),
-        limit: params.limit.toString(),
         ...(params.search && { search: params.search }),
         ...(params.sortBy && { sortBy: params.sortBy }),
         ...(params.sortOrder && { sortOrder: params.sortOrder })
@@ -53,11 +46,9 @@ export default function IndigenousCommunitiesPage() {
 
       const response = await fetch(`/api/indigenous-communities?${queryParams}`);
       const data = await response.json();
-      setCommunities(data.data || []);
-      setPagination(prev => ({
-        ...prev,
-        ...data.pagination
-      }));
+      setCommunities(data.items || []);
+      setTotalPages(data.totalPages || 1);
+      setTotalItems(data.totalItems || 0);
     } catch (error) {
       console.error('Error fetching indigenous communities:', error);
     } finally {
@@ -66,14 +57,14 @@ export default function IndigenousCommunitiesPage() {
   };
 
   useEffect(() => {
-    fetchCommunities({
-      page: pagination.page,
-      limit: pagination.limit,
+    void fetchCommunities({
+      page: currentPage,
       search: searchTerm,
-      sortBy,
+      sortBy: sortField,
       sortOrder
     });
-  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchTerm, sortField, sortOrder]);
 
   const handleSave = async (updatedRecord: Record<string, any>) => {
     try {
@@ -89,12 +80,10 @@ export default function IndigenousCommunitiesPage() {
         throw new Error('Failed to update community');
       }
 
-      // Refresh the current page
-      fetchCommunities({
-        page: pagination.page,
-        limit: pagination.limit,
+      await fetchCommunities({
+        page: currentPage,
         search: searchTerm,
-        sortBy,
+        sortBy: sortField,
         sortOrder
       });
     } catch (error) {
@@ -103,70 +92,50 @@ export default function IndigenousCommunitiesPage() {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({
-      ...prev,
-      page: newPage
-    }));
-  };
-
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setPagination(prev => ({
-      ...prev,
-      page: 1 // Reset to first page on new search
-    }));
+    setCurrentPage(1);
   };
 
   const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSortBy(field);
+    setSortField(field);
     setSortOrder(order);
   };
 
   const defaultColumns = [
-    { field: 'name', headerName: 'Name', isPrimary: true },
-    { field: 'location', headerName: 'Location' },
-    { field: 'contact', headerName: 'Contact' },
-    { field: 'createdAt', headerName: 'Created At', active: false },
-    { field: 'updatedAt', headerName: 'Updated At', active: false },
-    { field: 'id', headerName: 'ID', active: false },
+    { field: 'name', header: 'Name', sortable: true },
+    { field: 'location', header: 'Location', sortable: true },
+    { field: 'contact', header: 'Contact', sortable: true },
+    { field: 'createdAt', header: 'Created At', hidden: true },
+    { field: 'updatedAt', header: 'Updated At', hidden: true },
+    { field: 'id', header: 'ID', hidden: true }
   ];
 
-  // Get the ordered field names from localStorage or use default order
-  const orderedFields = getFieldOrder('indigenous-community', defaultColumns.map(col => col.field));
-
-  // Reorder columns based on the saved field order
-  const columns = orderedFields
-    .map(field => defaultColumns.find(col => col.field === field))
-    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
-
-  if (loading && !communities.length) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
-      </div>
-    );
-  }
+  const orderedFields = getFieldOrder('indigenousCommunity', defaultColumns.map(col => col.field));
+  const columns = orderedFields.map(field => {
+    const col = defaultColumns.find(c => c.field === field);
+    return col || { field, header: field, sortable: true };
+  });
 
   return (
     <AuthenticatedLayout>
       <div className="p-8">
         <h1 className="text-2xl font-bold text-ocean-900 mb-6">Indigenous Communities</h1>
         <DataGrid
-          rows={communities}
+          data={communities}
           columns={columns}
-          entityType="indigenous-community"
-          onSave={handleSave}
-          loading={loading}
           pagination={{
-            page: pagination.page,
-            pageSize: pagination.limit,
-            totalPages: pagination.totalPages,
-            totalItems: pagination.total
+            currentPage,
+            totalPages,
+            totalItems
           }}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
+          view={view}
+          onViewChange={setView}
           onSearch={handleSearch}
           onSort={handleSort}
+          onSave={handleSave}
+          loading={loading}
         />
       </div>
     </AuthenticatedLayout>

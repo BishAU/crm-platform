@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Observation - Clean Ocean Foundation</title>
+    <style>
+        :root {
+            --ocean-50: #f0f9ff;
+            --ocean-100: #e0f2fe;
+            --ocean-500: #0ea5e9;
+            --ocean-600: #0284c7;
+            --ocean-700: #0369a1;
+            --ocean-900: #0c4a6e;
+            --red-50: #fef2f2;
+            --red-700: #b91c1c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 2rem;
+            background-color: var(--ocean-50);
+            color: var(--ocean-900);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--ocean-900);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section {
+            border-bottom: 1px solid var(--ocean-100);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section h2 {
+            color: var(--ocean-700);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--ocean-700);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            ring: 2px;
+            ring-color: var(--ocean-500);
+            border-color: var(--ocean-500);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .file-input {
+            border: 2px dashed var(--ocean-100);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .file-input:hover {
+            border-color: var(--ocean-500);
+        }
+
+        .file-input input {
+            display: none;
+        }
+
+        .file-preview {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.375rem;
+        }
+
+        button {
+            background-color: var(--ocean-600);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--ocean-700);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background-color: var(--red-50);
+            color: var(--red-700);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success {
+            background-color: #f0fdf4;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create New Observation</h1>
+        
+        <div id="error-message" class="error"></div>
+        <div id="success-message" class="success"></div>
+
+        <form id="observation-form" enctype="multipart/form-data">
+            <div class="form-section">
+                <h2>Contact Information</h2>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required 
+                        placeholder="Your full name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="Your email address"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        placeholder="Your phone number"
+                    >
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Observation Details</h2>
+                <div class="form-group">
+                    <label for="observedAt">Date and Time of Observation</label>
+                    <input
+                        type="datetime-local"
+                        id="observedAt"
+                        name="observedAt"
+                        required
+                        class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-ocean-500"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        required 
+                        placeholder="Enter observation title"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        required 
+                        placeholder="Enter detailed description"
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type" required>
+                        <option value="">Select observation type</option>
+                        <option value="water-quality">Water Quality</option>
+                        <option value="marine-life">Marine Life</option>
+                        <option value="pollution">Pollution</option>
+                        <option value="coastal-erosion">Coastal Erosion</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Media</h2>
+                <div class="form-group">
+                    <label>Images</label>
+                    <div class="file-input" id="image-drop-zone">
+                        <p>Drop images here or click to upload</p>
+                        <input 
+                            type="file" 
+                            id="images" 
+                            name="images" 
+                            multiple 
+                            accept="image/*"
+                        >
+                    </div>
+                    <div id="image-preview" class="file-preview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Video</label>
+                    <div class="file-input" id="video-drop-zone">
+                        <p>Drop video here or click to upload</p>
+                        <input 
+                            type="file" 
+                            id="video" 
+                            name="video" 
+                            accept="video/*"
+                        >
+                    </div>
+                    <div id="video-preview" class="file-preview"></div>
+                </div>
+            </div>
+
+            <button type="submit">Submit Observation</button>
+        </form>
+    </div>
+
+    <script>
+        // File upload preview
+        function handleFileSelect(event, previewId, isVideo = false) {
+            const files = event.target.files || event.dataTransfer.files;
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
+
+            for (const file of files) {
+                if (isVideo) {
+                    const video = document.createElement('video');
+                    video.src = URL.createObjectURL(file);
+                    video.style.width = '100%';
+                    video.style.height = '100px';
+                    video.style.objectFit = 'cover';
+                    video.style.borderRadius = '0.375rem';
+                    preview.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    preview.appendChild(img);
+                }
+            }
+        }
+
+        // Setup drag and drop
+        ['image-drop-zone', 'video-drop-zone'].forEach(id => {
+            const zone = document.getElementById(id);
+            const input = zone.querySelector('input');
+            const isVideo = id.startsWith('video');
+
+            zone.addEventListener('click', () => input.click());
+            
+            input.addEventListener('change', (e) => {
+                handleFileSelect(e, isVideo ? 'video-preview' : 'image-preview', isVideo);
+            });
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--ocean-500)';
+            });
+
+            zone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--ocean-100)';
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = 'var(--ocean-100)';
+                input.files = e.dataTransfer.files;
+                handleFileSelect(e, isVideo ? 'video-preview' : 'image-preview', isVideo);
+            });
+        });
+
+        // Form submission
+        document.getElementById('observation-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            submitButton.disabled = true;
+
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/api/observations/external', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create observation. Please try again.');
+                }
+
+                successDiv.textContent = 'Observation created successfully! Thank you for your contribution.';
+                successDiv.style.display = 'block';
+                document.getElementById('observation-form').reset();
+                document.getElementById('image-preview').innerHTML = '';
+                document.getElementById('video-preview').innerHTML = '';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

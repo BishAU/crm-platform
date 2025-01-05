@@ -1,48 +1,39 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../lib/prisma';
 
-interface ColumnSchema {
-  column_name: string;
-}
+// List of tables from prisma schema
+const tables = [
+  'Campaign',
+  'Facility',
+  'IndigenousCommunity',
+  'LandCouncil',
+  'MarketingList',
+  'Observation',
+  'Outfall',
+  'OutfallObservation',
+  'OutfallPostcode',
+  'Politician',
+  'SupportTicket',
+  'User',
+  'WaterAuthority'
+];
 
-const tableMap: Record<string, string> = {
-  User: 'User',
-  Outfall: 'Outfall',
-  Politician: 'Politician',
-  MarketingList: 'MarketingList',
-  Facility: 'Facility',
-  IndigenousCommunity: 'IndigenousCommunity',
-  LandCouncil: 'LandCouncil',
-  WaterAuthority: 'WaterAuthority',
-  Campaign: 'Campaign',
-};
-
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const tableName = searchParams.get('table');
+    const formattedTables = tables
+      .filter(name => !['Account', 'Session', 'VerificationToken'].includes(name))
+      .map(name => ({
+        value: name.toLowerCase(),
+        label: name,
+        template: `/csv-imports/${name.toLowerCase()}-template.csv`
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
 
-    if (!tableName || typeof tableName !== 'string') {
-      return NextResponse.json({ message: 'Table name is required' }, { status: 400 });
-    }
-
-    const dbTableName = tableMap[tableName];
-
-    if (!dbTableName) {
-        return NextResponse.json({ message: 'Invalid table name' }, { status: 400 });
-    }
-
-    const schema = await prisma.$queryRaw<ColumnSchema[]>`
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_name = ${dbTableName}
-    `;
-
-    const fields = schema.map((column) => column.column_name);
-
-    return NextResponse.json({ fields });
+    return NextResponse.json({ tables: formattedTables });
   } catch (error) {
-    console.error('Error fetching schema:', error);
-    return NextResponse.json({ message: 'Error fetching schema' }, { status: 500 });
+    console.error('Error formatting tables:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch schema information' },
+      { status: 500 }
+    );
   }
 }

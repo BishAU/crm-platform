@@ -1,42 +1,35 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import DataGrid from '@components/DataGrid';
-import AuthenticatedLayout from '@components/AuthenticatedLayout';
-import { getFieldOrder } from '@lib/field-visibility-client';
+import { useSearchParams } from 'next/navigation';
+import DataGrid from '../components/DataGrid';
+import AuthenticatedLayout from '../components/AuthenticatedLayout';
+import { getFieldOrder } from '../lib/field-visibility-client';
 
 interface WaterAuthority {
   id: string;
   name: string;
-  region: string;
-  contact: string;
+  indigenousCommunities?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface PaginationState {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export default function WaterAuthoritiesPage() {
-  const [authorities, setAuthorities] = useState<WaterAuthority[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState<PaginationState>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0
-  });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const searchParams = useSearchParams();
+  const initialView = (searchParams?.get('view') as 'grid' | 'list') || 'grid';
 
-  const fetchAuthorities = async (params: {
+  const [waterAuthorities, setWaterAuthorities] = useState<WaterAuthority[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [view, setView] = useState<'grid' | 'list'>(initialView);
+
+  const fetchWaterAuthorities = async (params: {
     page: number;
-    limit: number;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
@@ -45,128 +38,78 @@ export default function WaterAuthoritiesPage() {
       setLoading(true);
       const queryParams = new URLSearchParams({
         page: params.page.toString(),
-        limit: params.limit.toString(),
         ...(params.search && { search: params.search }),
         ...(params.sortBy && { sortBy: params.sortBy }),
         ...(params.sortOrder && { sortOrder: params.sortOrder })
       });
 
       const response = await fetch(`/api/water-authorities?${queryParams}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch water authorities');
+      }
       const data = await response.json();
-      setAuthorities(data.data || []);
-      setPagination(prev => ({
-        ...prev,
-        ...data.pagination
-      }));
-    } catch (error) {
-      console.error('Error fetching water authorities:', error);
+      setWaterAuthorities(data.items);
+      setTotalPages(data.totalPages);
+      setTotalItems(data.totalItems);
+    } catch (err) {
+      console.error('Error fetching water authorities:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAuthorities({
-      page: pagination.page,
-      limit: pagination.limit,
+    void fetchWaterAuthorities({
+      page: currentPage,
       search: searchTerm,
-      sortBy,
+      sortBy: sortField,
       sortOrder
     });
-  }, [pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
-
-  const handleSave = async (updatedRecord: Record<string, any>) => {
-    try {
-      const response = await fetch(`/api/water-authorities/${updatedRecord.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedRecord),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update water authority');
-      }
-
-      // Refresh the current page
-      fetchAuthorities({
-        page: pagination.page,
-        limit: pagination.limit,
-        search: searchTerm,
-        sortBy,
-        sortOrder
-      });
-    } catch (error) {
-      console.error('Error updating water authority:', error);
-      throw error;
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({
-      ...prev,
-      page: newPage
-    }));
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, searchTerm, sortField, sortOrder]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setPagination(prev => ({
-      ...prev,
-      page: 1 // Reset to first page on new search
-    }));
+    setCurrentPage(1);
   };
 
   const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSortBy(field);
+    setSortField(field);
     setSortOrder(order);
   };
 
   const defaultColumns = [
-    { field: 'name', headerName: 'Name', isPrimary: true },
-    { field: 'region', headerName: 'Region' },
-    { field: 'contact', headerName: 'Contact' },
-    { field: 'createdAt', headerName: 'Created At', active: false },
-    { field: 'updatedAt', headerName: 'Updated At', active: false },
-    { field: 'id', headerName: 'ID', active: false },
+    { field: 'name', header: 'Name', sortable: true },
+    { field: 'indigenousCommunities', header: 'Indigenous Communities', sortable: true },
+    { field: 'createdAt', header: 'Created At', hidden: true },
+    { field: 'updatedAt', header: 'Updated At', hidden: true },
+    { field: 'id', header: 'ID', hidden: true }
   ];
 
-  // Get the ordered field names from localStorage or use default order
-  const orderedFields = getFieldOrder('water-authority', defaultColumns.map(col => col.field));
-
-  // Reorder columns based on the saved field order
-  const columns = orderedFields
-    .map(field => defaultColumns.find(col => col.field === field))
-    .filter((col): col is typeof defaultColumns[0] => col !== undefined);
-
-  if (loading && !authorities.length) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
-      </div>
-    );
-  }
+  const orderedFields = getFieldOrder('waterAuthority', defaultColumns.map(col => col.field));
+  const columns = orderedFields.map(field => {
+    const col = defaultColumns.find(c => c.field === field);
+    return col || { field, header: field, sortable: true };
+  });
 
   return (
     <AuthenticatedLayout>
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Water Authorities</h1>
+      <div className="p-4">
+        <h1 className="text-2xl font-bold mb-4">Water Authorities</h1>
         <DataGrid
-          rows={authorities}
+          data={waterAuthorities}
           columns={columns}
-          entityType="water-authority"
-          onSave={handleSave}
-          loading={loading}
           pagination={{
-            page: pagination.page,
-            pageSize: pagination.limit,
-            totalPages: pagination.totalPages,
-            totalItems: pagination.total
+            currentPage,
+            totalPages,
+            totalItems
           }}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
+          view={view}
+          onViewChange={setView}
           onSearch={handleSearch}
           onSort={handleSort}
+          loading={loading}
         />
       </div>
     </AuthenticatedLayout>

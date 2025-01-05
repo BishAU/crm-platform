@@ -1,49 +1,50 @@
-import { NextRequest } from 'next/server';
-import { jsonResponse, errorResponse } from '../../../lib/api';
-import * as db from '../../../lib/db';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export const dynamic = 'force-dynamic';
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const countOnly = searchParams.get('count') === 'true';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'outfallName';
+    const sortOrder = (searchParams.get('sortOrder') || 'asc') as 'asc' | 'desc';
 
-interface Outfall {
-  id: string;
-  authority?: string;
-  contact?: string;
-  contact_email?: string;
-  contact_name?: string;
-  indigenousNation?: string;
-  landCouncil?: string;
-  latitude?: string;
-  longitude?: string;
-  state?: string;
-  type?: string;
-  outfallName?: string;
-  outfall?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export async function GET(request: NextRequest) {
-    try {
-      const searchParams = request.nextUrl.searchParams;
-      const countOnly = searchParams.get('count') === 'true';
-
-      if (countOnly) {
-        const outfalls = await db.findMany('outfall' as any, {}) as Outfall[];
-        return jsonResponse({ count: outfalls.length });
-      }
-
-      const outfalls = await db.findMany('outfall' as any, {
-        where: {
-          ...Object.fromEntries(
-            Array.from(searchParams.entries())
-              .filter(([key]) => !['page', 'limit', 'sortBy', 'sortOrder'].includes(key))
-          )
-        }
-      });
-
-      return jsonResponse({ data: outfalls });
-    } catch (error) {
-      console.error('Error fetching outfalls:', error);
-      return errorResponse('Failed to fetch outfalls', 500);
+    if (countOnly) {
+      const count = await prisma.outfall.count();
+      return NextResponse.json({ count });
     }
+
+    const pageSize = 10;
+    const skip = (page - 1) * pageSize;
+
+    const where: Prisma.OutfallWhereInput = search ? {
+      OR: [
+        { outfallName: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { authority: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { type: { contains: search, mode: Prisma.QueryMode.insensitive } }
+      ]
+    } : {};
+
+    const [items, total] = await Promise.all([
+      prisma.outfall.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { [sortBy]: sortOrder }
+      }),
+      prisma.outfall.count({ where })
+    ]);
+
+    return NextResponse.json({
+      items,
+      page,
+      totalPages: Math.ceil(total / pageSize),
+      totalItems: total
+    });
+  } catch (error) {
+    console.error('Error fetching outfalls:', error);
+    return NextResponse.json({ message: 'Error fetching outfalls' }, { status: 500 });
+  }
 }
