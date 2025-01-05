@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import DataGrid from '@components/DataGrid';
-import AuthenticatedLayout from '@components/AuthenticatedLayout';
 import { getFieldOrder } from '@lib/field-visibility-client';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 interface Outfall {
   id: string;
@@ -158,9 +158,11 @@ export default function OutfallsPage() {
 
   if (loading && !outfalls.length) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
-      </div>
+      <AuthenticatedLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+        </div>
+      </AuthenticatedLayout>
     );
   }
 

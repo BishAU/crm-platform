@@ -6,7 +6,7 @@ module.exports = {
       args: "run dev",
       cwd: "/home/bish/Downloads/sites/crm-platform",
       env: {
-        PORT: 3100
+        PORT: 3104
       }
     }
   ]

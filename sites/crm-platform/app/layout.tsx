@@ -1,10 +1,9 @@
-import './globals.css';
 import { Providers } from './providers';
-import { Metadata } from 'next';
+import './globals.css';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'CRM Platform',
-  description: 'Customer Relationship Management Platform',
+  description: 'A simple CRM platform',
 };
 
 export default function RootLayout({
@@ -14,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

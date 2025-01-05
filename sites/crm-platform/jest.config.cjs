@@ -21,7 +21,8 @@ const customJestConfig = {
     '^uuid$': '<rootDir>/__mocks__/uuid.ts',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.ts',
     '^next-auth/(.*)$': '<rootDir>/__mocks__/next-auth.ts',
-    '^next/server$': '<rootDir>/__mocks__/next/server.ts'
+    '^next/server$': '<rootDir>/__mocks__/next/server.ts',
+    'node-fetch': '<rootDir>/__mocks__/node-fetch.ts',
   },
   testMatch: [
     '<rootDir>/tests/**/*.test.ts',
@@ -43,17 +44,11 @@ const customJestConfig = {
     },
   },
   transform: {
-    '^.+\\.(t|j)sx?$': ['@swc/jest']
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
+  transformIgnorePatterns: [],
   testEnvironmentOptions: {
     customExportConditions: [''],
-  },
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react',
-      },
-    },
   },
   // Ensure proper module resolution
   moduleDirectories: ['node_modules', '<rootDir>'],

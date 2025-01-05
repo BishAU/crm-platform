@@ -11,12 +11,14 @@ interface OutfallData {
 }
 
 async function main() {
-  const hashedPassword = bcrypt.hashSync('password', 10);
+  const hashedPassword = await bcrypt.hash('password123', 10);
 
-  // Create admin user
+  // Create admin user with hashed password
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
-    update: {},
+    update: {
+      password: hashedPassword
+    },
     create: {
       email: 'admin@example.com',
       name: 'Admin User',
@@ -28,11 +30,40 @@ async function main() {
   // Create regular user
   await prisma.user.upsert({
     where: { email: 'user@example.com' },
-    update: {},
+    update: {
+      password: hashedPassword
+    },
     create: {
       email: 'user@example.com',
       name: 'Regular User',
       password: hashedPassword
+    }
+  });
+
+  // Create test user for development
+  await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {
+      password: hashedPassword
+    },
+    create: {
+      email: 'test@example.com',
+      name: 'Test User',
+      password: hashedPassword
+    }
+  });
+
+  // Create the pbishop user
+  const pbishopHashedPassword = await bcrypt.hash('b15h0p', 10);
+  await prisma.user.upsert({
+    where: { email: 'pbishop@cleanocean.org' },
+    update: {
+      password: pbishopHashedPassword
+    },
+    create: {
+      email: 'pbishop@cleanocean.org',
+      name: 'Peter Bishop',
+      password: pbishopHashedPassword
     }
   });
 
@@ -93,11 +124,28 @@ async function main() {
     create: {
       id: 'initial-marketing-list',
       name: 'Initial Marketing List',
-      creator: {
-        connect: {
-          id: adminUser.id
-        }
-      }
+      creatorId: adminUser.id
+    }
+  });
+
+  console.log('Database seeded successfully!');
+  console.log('Test credentials:');
+  console.log('Email: test@example.com');
+  console.log('Password: password123');
+
+  // Create the pbishop admin user
+  const pbishopAdminHashedPassword = await bcrypt.hash('PAraglidingTimbis24!', 10);
+  await prisma.user.upsert({
+    where: { email: 'pbishop@cleanocean.org' },
+    update: {
+      password: pbishopAdminHashedPassword,
+      isAdmin: true
+    },
+    create: {
+      email: 'pbishop@cleanocean.org',
+      name: 'Peter Bishop',
+      password: pbishopAdminHashedPassword,
+      isAdmin: true
     }
   });
 }

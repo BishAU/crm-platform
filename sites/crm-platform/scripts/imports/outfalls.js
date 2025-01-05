@@ -1,4 +1,5 @@
 import { prisma, processCsvFile } from './shared.js';
+import crypto from 'crypto';
 
 export async function importOutfalls(filePath) {
     console.log('\nProcessing Outfalls...');
@@ -10,6 +11,7 @@ export async function importOutfalls(filePath) {
             await prisma.outfall.createMany({
                 skipDuplicates: true,
                 data: records.map(r => ({
+                    id: crypto.randomUUID(),
                     authority: r['Authority'],
                     contact: r['Contact'],
                     contact_email: r['Email'],

@@ -1,15 +1,10 @@
-
 const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://crm_user:crm_password@localhost:5432/crm_platform'
 });
 
-// Helper function to log messages
-const log = (level, message) => {
-  const timestamp = new Date().toISOString();
-  console.log(JSON.stringify({ timestamp, level, message }));
-};
+import { log } from './utils.js';
 
 async function checkOutfalls() {
   const client = await pool.connect();

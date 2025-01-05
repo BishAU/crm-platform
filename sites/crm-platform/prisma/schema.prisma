@@ -11,65 +11,66 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
-  isAdmin       Boolean   @default(false)
+  id                   String          @id @default(cuid())
+  name                 String?
+  email                String?         @unique
+  emailVerified        DateTime?
+  image                String?
+  password             String?
+  refreshToken         String?         @db.Text // Added for JWT refresh token
+  accounts             Account[]
+  sessions             Session[]
+  isAdmin              Boolean         @default(false)
   // New fields from people.csv
-  abn           String?
-  address1      String?
-  annualReportPrepared Boolean? @default(false)
-  annualReports String?
-  auditor       String?
-  budgetDocumentation String?
-  city          String?
-  classification String?
-  company       String?
-  country       String?
-  creationDate  DateTime?
-  dob           DateTime?
-  description   String?
-  establishedBy String?
-  establishedByInfo String?
-  firstName     String?
-  fullName      String?
-  gfsSector     String?
-  gfsFunction   String?
-  headOfficeCountry String?
-  headOfficePostcode String?
-  headOfficeState String?
-  headOfficeAddress String?
-  headOfficeSuburb String?
-  lastName      String?
-  materiality   String?
-  newsletter    Boolean? @default(false)
-  optInStatus   String?
-  organisation  String?
-  psActBody     String?
-  phone         String?
-  phoneNumber   String?
-  physicalAddress String?
+  abn                  String?
+  address1             String?
+  annualReportPrepared Boolean?        @default(false)
+  annualReports        String?
+  auditor              String?
+  budgetDocumentation  String?
+  city                 String?
+  classification       String?
+  company              String?
+  country              String?
+  creationDate         DateTime?
+  dob                  DateTime?
+  description          String?
+  establishedBy        String?
+  establishedByInfo    String?
+  firstName            String?
+  fullName             String?
+  gfsSector            String?
+  gfsFunction          String?
+  headOfficeCountry    String?
+  headOfficePostcode   String?
+  headOfficeState      String?
+  headOfficeAddress    String?
+  headOfficeSuburb     String?
+  lastName             String?
+  materiality          String?
+  newsletter           Boolean?        @default(false)
+  optInStatus          String?
+  organisation         String?
+  psActBody            String?
+  phone                String?
+  phoneNumber          String?
+  physicalAddress      String?
   physicalAddressState String?
-  portfolio     String?
-  portfolioDept String?
-  postcode      String?
-  relationship  String?
-  state         String?
-  strategicPlan String?
-  surname       String?
-  title         String?
-  typeOfBody    String?
-  websiteAddress String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  MarketingList MarketingList[]
-  facilities    Facility[]
-  supportTickets SupportTicket[]
+  portfolio            String?
+  portfolioDept        String?
+  postcode             String?
+  relationship         String?
+  state                String?
+  strategicPlan        String?
+  surname              String?
+  title                String?
+  typeOfBody           String?
+  websiteAddress       String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  MarketingList        MarketingList[]
+  facilities           Facility[]
+  supportTickets       SupportTicket[]
 }
 
 model Account {
@@ -85,7 +86,8 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
 }
 
@@ -101,27 +103,31 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+
   @@unique([identifier, token])
 }
 
 model Outfall {
-  id             String    @id @default(cuid())
-  authority      String?
-  contact        String?
-  contact_email  String?
-  contact_name   String?
-  indigenousNation String?
-  landCouncil    String?
-  latitude       String?
-  longitude      String?
-  state          String?
-  type           String?
-  outfallName    String?
-  outfall        String?  // New field from CSV
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  postcodes      OutfallPostcode[]
-  observations   OutfallObservation[]
+  id                    String               @id @default(cuid())
+  authority             String?
+  contact               String?
+  contact_email         String?
+  contact_name          String?
+  indigenousNation      String?
+  landCouncil           String?
+  latitude              String?
+  longitude             String?
+  state                 String?
+  type                  String?
+  outfallName           String? // New field from CSV
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  postcodes             OutfallPostcode[]
+  observations          OutfallObservation[]
+  waterAuthority        WaterAuthority?      @relation(fields: [waterAuthorityId], references: [id], name: "WaterAuthorityToOutfalls")
+  waterAuthorityId      String?
+  indigenousCommunity   IndigenousCommunity? @relation(fields: [indigenousCommunityId], references: [id], name: "IndigenousCommunityToOutfalls")
+  indigenousCommunityId String?
 }
 
 model OutfallPostcode {
@@ -131,101 +137,102 @@ model OutfallPostcode {
   radius    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  outfall   Outfall   @relation(fields: [outfallId], references: [id])
+  outfall   Outfall  @relation(fields: [outfallId], references: [id])
 }
 
 model Politician {
-  id            String   @id @default(cuid())
-  name          String
-  email         String?  @unique
-  party         String?
-  position      String?
-  state         String?
+  id             String    @id @default(cuid())
+  name           String
+  email          String?   @unique
+  party          String?
+  position       String?
+  state          String?
   // New fields from politicians.csv
-  address       String?
-  city          String?
-  eoAddress     String?  // Electoral Office Address
-  electorate    String?
-  fax           String?
-  firstName     String?
-  gender        String?
-  house         String?
-  lastName      String?
-  lastUpdated   DateTime?
-  minAddress    String?  // Ministerial Address
-  minPhone      String?
-  minister      Boolean? @default(false)
-  poAddress     String?  // Postal Office Address
-  poPostcode    String?
-  partyAbb      String?  // Party Abbreviation
-  phone         String?
-  photo         String?
+  address        String?
+  city           String?
+  eoAddress      String?
+  electorate     String?
+  fax            String?
+  firstName      String?
+  gender         String?
+  house          String?
+  lastName       String?
+  lastUpdated    DateTime?
+  minAddress     String?
+  minPhone       String?
+  minister       Boolean?  @default(false)
+  poAddress      String?
+  poPostcode     String?
+  partyAbb       String?
+  phone          String?
+  photo          String?
   politicalParty String?
-  preferredName String?
-  salutation    String?
-  surname       String?
-  title         String?
-  web           String?
-  imageUrl      String?
-  fullName      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  preferredName  String?
+  salutation     String?
+  surname        String?
+  title          String?
+  web            String?
+  imageUrl       String?
+  fullName       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model MarketingList {
-  id        String   @id @default(cuid())
+  id        String                @id @default(cuid())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
   entities  MarketingListEntity[]
-  creatorId String
-  creator   User     @relation(fields: [creatorId], references: [id])
+  creatorId String?
+  creator   User?                 @relation(fields: [creatorId], references: [id])
 }
 
 model MarketingListEntity {
-  id                String   @id @default(cuid())
-  marketingListId   String
-  entityType        String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  marketingList     MarketingList @relation(fields: [marketingListId], references: [id])
-  filters           MarketingListFilter[]
+  id              String                @id @default(cuid())
+  marketingListId String
+  entityType      String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  marketingList   MarketingList         @relation(fields: [marketingListId], references: [id])
+  filters         MarketingListFilter[]
 }
 
 model MarketingListFilter {
-  id                    String   @id @default(cuid())
+  id                    String              @id @default(cuid())
   marketingListEntityId String
   field                 String
   operator              String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   marketingListEntity   MarketingListEntity @relation(fields: [marketingListEntityId], references: [id])
 }
 
 model Facility {
-  id          String   @id @default(cuid())
-  latitude    String?
-  longitude   String?
-  postcode    String?
-  regionType  String?
-  sector      String?
-  suburb      String?
-  type        String?
-  name        String?  // Added for Facility Name
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  creator     User     @relation(fields: [creatorId], references: [id])
-  creatorId   String
+  id         String   @id @default(cuid())
+  latitude   String?
+  longitude  String?
+  postcode   String?
+  regionType String?
+  sector     String?
+  suburb     String?
+  type       String?
+  name       String? // Added for Facility Name
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  creator    User     @relation(fields: [creatorId], references: [id])
+  creatorId  String
 }
 
 model IndigenousCommunity {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  region      String?
-  population  Int?
+  id               String    @id @default(cuid())
+  name             String    @unique
+  region           String?
+  population       Int?
   waterAuthorities String? // Added for Related Water Authorities
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  outfalls         Outfall[] @relation("IndigenousCommunityToOutfalls")
 }
 
 model OutfallObservation {
@@ -235,51 +242,52 @@ model OutfallObservation {
   flow      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  outfall   Outfall   @relation(fields: [outfallId], references: [id])
+  outfall   Outfall  @relation(fields: [outfallId], references: [id])
 }
 
 model SupportTicket {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  status      String?
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  status       String?
   assignedToId String?
-  assignedTo  User? @relation(fields: [assignedToId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  assignedTo   User?    @relation(fields: [assignedToId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 // New models from CSV files
 
 model LandCouncil {
-  id          String   @id @default(cuid())
-  name        String?  @unique
-  email       String?
-  lgas        String?  // Local Government Areas
-  outfallCount Int?    // Number of outfalls
-  outfalls    String?  // Outfall references
-  phone       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String?  @unique
+  email        String?
+  lgas         String? // Local Government Areas
+  outfallCount Int? // Number of outfalls
+  outfalls     String? // Outfall references
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model WaterAuthority {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id                    String    @id @default(cuid())
+  name                  String    @unique
   indigenousCommunities String? // Associated Indigenous Communities
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  outfalls              Outfall[] @relation("WaterAuthorityToOutfalls")
 }
 
 model Campaign {
-  id              String   @id @default(cuid())
-  name            String
-  description     String?
-  status          String   @default("draft")
-  startDate       DateTime?
-  endDate         DateTime?
-  budget          Decimal? @db.Decimal(10,2)
-  targetAudience  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  name           String
+  description    String?
+  status         String    @default("draft")
+  startDate      DateTime?
+  endDate        DateTime?
+  budget         Decimal?  @db.Decimal(10, 2)
+  targetAudience String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }

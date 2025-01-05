@@ -1,4 +1,6 @@
-import { prisma } from '../app/lib/prisma';
+
+import { prisma as prismaClient } from '../app/lib/prisma';
+export const prisma = prismaClient;
 import { Prisma, PrismaClient } from '@prisma/client';
 
 type PrismaModels = {

@@ -12,8 +12,11 @@ export default function CustomerPage() {
 
   useEffect(() => {
     const fetchCustomer = async () => {
+      if (!params?.id) {
+        return;
+      }
       try {
-        const response = await fetch(`/api/customers/${params.id}`);
+        const response = await fetch(`/api/customers/${params!.id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch customer');
         }
@@ -26,10 +29,8 @@ export default function CustomerPage() {
       }
     };
 
-    if (params.id) {
-      fetchCustomer();
-    }
-  }, [params.id]);
+    fetchCustomer();
+  }, [params]);
 
   if (loading) {
     return (
@@ -48,8 +49,11 @@ export default function CustomerPage() {
   }
 
   const handleSave = async (updatedCustomer: any) => {
+    if (!params?.id) {
+      return;
+    }
     try {
-      const response = await fetch(`/api/customers/${params.id}`, {
+      const response = await fetch(`/api/customers/${params!.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

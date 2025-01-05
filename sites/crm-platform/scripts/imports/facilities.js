@@ -16,16 +16,17 @@ export async function importFacilities(filePath) {
         const { currentFileImports } = await processCsvFile(filePath, async (records) => {
             // Direct CSV column mapping
             const data = records.map(r => ({
-                name: r['Name'] || r['School Name'] || r['Facility Name'] || 'Unnamed Facility',
-                latitude: r['Latitude'] || r['Lat'] || null,
-                longitude: r['Longitude'] || r['Long'] || null,
-                postcode: r['Postcode'] || null,
-                regionType: r['Region Type'] || r['RegionType'] || null,
-                sector: r['Sector'] || r['School Sector'] || null,
-                suburb: r['Suburb'] || null,
-                type: r['Type'] || r['School Type'] || null,
-                creatorId: admin.id
-            }));
+                    id: crypto.randomUUID(),
+                    name: r['Name'] || r['School Name'] || r['Facility Name'] || 'Unnamed Facility',
+                    latitude: r['Latitude'] || r['Lat'] || null,
+                    longitude: r['Longitude'] || r['Long'] || null,
+                    postcode: r['Postcode'] || null,
+                    regionType: r['Region Type'] || r['RegionType'] || null,
+                    sector: r['Sector'] || r['School Sector'] || null,
+                    suburb: r['Suburb'] || null,
+                    type: r['Type'] || r['School Type'] || null,
+                    creatorId: admin.id
+                }));
 
             // Bulk insert with skip duplicates
             await prisma.facility.createMany({

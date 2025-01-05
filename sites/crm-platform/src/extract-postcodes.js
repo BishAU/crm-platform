@@ -2,11 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse');
 
-// Helper function to log messages
-const log = (level, message) => {
-  const timestamp = new Date().toISOString();
-  console.log(JSON.stringify({ timestamp, level, message }));
-};
+import { log } from './utils.js';
 
 // Helper function to clean text
 const cleanText = (text) => {

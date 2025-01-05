@@ -4,18 +4,62 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { cn } from '@lib/utils';
-import MarketingSubMenu from './MarketingSubMenu';
-import SupportSubMenu from './SupportSubMenu';
+import React from 'react';
+import {
+  BarChart3,
+  Building,
+  Building2,
+  Droplet,
+  Map,
+  MessageSquare,
+  Users,
+  List,
+  FileText,
+  Settings,
+  User,
+  Import,
+  LogOut,
+  UserRound,
+  Landmark,
+  Eye,
+  Store,
+  Factory,
+  Waves,
+  Ticket,
+} from 'lucide-react';
+
+const icons = {
+  BarChart3,
+  Building,
+  Building2,
+  Droplet,
+  Map,
+  MessageSquare,
+  Users,
+  List,
+  FileText,
+  Settings,
+  User,
+  Import,
+  LogOut,
+  UserRound,
+  Landmark,
+  Eye,
+  Store,
+  Factory,
+  Waves,
+  Ticket,
+};
 
 interface NavigationProps {
   isCollapsed: boolean;
-  pathname: string;
   menuItems: {
     name: string;
     href: string;
     icon: string;
     onClick?: string;
     isButton?: boolean;
+    isExternal?: boolean;
     subItems?: {
       name: string;
       href: string;
@@ -24,8 +68,9 @@ interface NavigationProps {
   }[];
 }
 
-export default function Navigation({ isCollapsed, pathname, menuItems }: NavigationProps) {
+export default function Navigation({ isCollapsed, menuItems }: NavigationProps) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const pathname = usePathname();
 
   // Keep parent menu open when subitems are active
   useEffect(() => {
@@ -36,21 +81,29 @@ export default function Navigation({ isCollapsed, pathname, menuItems }: Navigat
     });
   }, [pathname, menuItems]);
 
+  const renderIcon = (iconName: string) => {
+    const IconComponent = icons[iconName as keyof typeof icons];
+    return IconComponent ? <IconComponent className="w-5 h-5" /> : null;
+  };
+
   return (
-    <nav className="flex flex-col h-full">
-      <div className="flex-1 px-2 py-2 space-y-1">
-        {menuItems.map(({ name, href, icon, subItems, isButton, onClick }) => {
+    <nav className="flex flex-col">
+      <div className="px-2 py-2 space-y-1">
+        {menuItems.map(({ name, href, icon, subItems, isButton, onClick, isExternal }) => {
           const hasSubItems = subItems && subItems.length > 0;
           const isOpen = openMenu === name;
+          const isActive = pathname === href || subItems?.some(subItem => pathname === subItem.href);
+          
+          const linkProps = isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {};
           
           return (
             <div key={name}>
               {isButton ? (
                 <button
                   className={cn(
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                    'text-white transition-colors duration-200 w-full text-left',
-                    pathname === href ? 'bg-[#005f9e]' : ''
+                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full',
+                    'text-white transition-colors duration-200',
+                    isActive ? 'bg-[#005f9e]' : 'hover:bg-[#005f9e]'
                   )}
                   onClick={async (e) => {
                     if (onClick === 'signOut') {
@@ -62,10 +115,9 @@ export default function Navigation({ isCollapsed, pathname, menuItems }: Navigat
                 >
                   <span className={cn(
                     'mr-3',
-                    pathname === href ? 'text-white' : 'text-white/80',
-                    'hover:bg-[#005f9e] !important'
+                    isActive ? 'text-white' : 'text-white/80'
                   )}>
-                    {icon}
+                    {renderIcon(icon)}
                   </span>
                   {!isCollapsed && (
                     <div className="flex-1 flex justify-between items-center">
@@ -75,34 +127,28 @@ export default function Navigation({ isCollapsed, pathname, menuItems }: Navigat
                 </button>
               ) : (
                 <Link
-                  href={href}
+                  href={hasSubItems ? '#' : href}
                   className={cn(
                     'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
                     'text-white transition-colors duration-200',
                     hasSubItems ? 'cursor-pointer' : '',
-                    pathname === href ? 'bg-[#005f9e]' : ''
+                    isActive ? 'bg-[#005f9e]' : 'hover:bg-[#005f9e]'
                   )}
-                  onClick={async (e) => {
-                    console.log('pathname:', pathname, 'href:', href, 'active:', pathname === href);
+                  onClick={(e) => {
                     if (hasSubItems) {
                       e.preventDefault();
-                      console.log('openMenu:', openMenu, 'name:', name);
-                      if (openMenu === name) {
-                        setOpenMenu(null);
-                      } else {
-                        setOpenMenu(name);
-                      }
+                      setOpenMenu(openMenu === name ? null : name);
                     }
                   }}
                   aria-expanded={hasSubItems ? isOpen : undefined}
                   aria-haspopup={hasSubItems ? 'true' : undefined}
+                  {...linkProps}
                 >
                   <span className={cn(
                     'mr-3',
-                    pathname === href ? 'text-white' : 'text-white/80',
-                    'hover:bg-[#005f9e] !important'
+                    isActive ? 'text-white' : 'text-white/80'
                   )}>
-                    {icon}
+                    {renderIcon(icon)}
                   </span>
                   {!isCollapsed && (
                     <div className="flex-1 flex justify-between items-center">
@@ -118,22 +164,22 @@ export default function Navigation({ isCollapsed, pathname, menuItems }: Navigat
               )}
 
               {hasSubItems && isOpen && !isCollapsed && (
-                <div className="pl-4">
+                <div className="pl-4 mt-1">
                   {subItems.map((subItem) => (
                     <Link
                       key={subItem.name}
                       href={subItem.href}
                       className={cn(
                         'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-                        'text-white hover:bg-[#005f9e] transition-colors duration-200',
-                        pathname === subItem.href ? 'bg-[#005f9e]' : ''
+                        'text-white transition-colors duration-200',
+                        pathname === subItem.href ? 'bg-[#005f9e]' : 'hover:bg-[#005f9e]'
                       )}
                     >
                       <span className={cn(
                         'mr-3',
                         pathname === subItem.href ? 'text-white' : 'text-white/80'
                       )}>
-                        {subItem.icon}
+                        {renderIcon(subItem.icon)}
                       </span>
                       {subItem.name}
                     </Link>

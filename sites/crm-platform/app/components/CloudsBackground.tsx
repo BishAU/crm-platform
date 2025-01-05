@@ -16,19 +16,27 @@ export default function CloudsBackground() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const clouds = Array.from({ length: 5 }).map((_, i) => ({
+    index: i,
+    speed: (60 + i * 8) * 0.1, // Reduce speed to 10%
+    size: 6 - i * 0.8,   // Adjust size for distance
+    top: 10 + i * 10,    // Adjust top position for distance
+  }));
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-none">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {clouds.map((cloud) => (
         <div
-          key={i}
+          key={cloud.index}
           className="absolute text-6xl text-white opacity-80 blur-sm"
           style={{
-            top: `${10 + i * 15}%`,
-            animation: `float-cloud ${60 + i * 5}s linear infinite ${i * 10}s`,
+            top: `${cloud.top}%`,
+            fontSize: `${cloud.size}rem`,
+            animation: `float-cloud ${cloud.speed}s linear infinite ${cloud.index * 10}s`,
             transform: `translateX(${mouseX * 0.01}px) translateY(${mouseY * 0.01}px)`
           }}
         >
-          ☁️
+          🌀
         </div>
       ))}
       <style jsx>{`

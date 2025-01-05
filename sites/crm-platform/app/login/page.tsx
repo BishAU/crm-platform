@@ -1,42 +1,63 @@
-import { Suspense } from 'react';
-import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { getToken } from 'next-auth/jwt';
-import LoginClient from './LoginClient';
+"use client";
 
-export const dynamic = 'force-dynamic';
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent } from "react";
 
-export default async function LoginPage() {
-  // Check for active session
-  const headersList = headers();
-  const token = await getToken({
-    req: {
-      headers: Object.fromEntries(headersList.entries()),
-      cookies: headersList.get('cookie')?.split('; ').reduce((acc, cookie) => {
-        const [key, value] = cookie.split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>) ?? {},
-    } as any,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const error = searchParams?.get("error");
 
-  // Redirect to dashboard if session exists
-  if (token) {
-    redirect('/dashboard');
-  }
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const result = await signIn("credentials", {
+      password: formData.get("password"),
+      redirect: true,
+      callbackUrl: "/dashboard",
+    });
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          {error && (
+            <p className="mt-2 text-center text-sm text-red-600">
+              Invalid credentials. Please try again.
+            </p>
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div>
+            <label htmlFor="password" className="sr-only">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              placeholder="Password"
+            />
           </div>
-        }
-      >
-        <LoginClient />
-      </Suspense>
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

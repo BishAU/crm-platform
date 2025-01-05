@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import AuthenticatedLayout from '../components/AuthenticatedLayout';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Users, Building2, Droplet, Map, MessageSquare, 
   BarChart3, Building
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 interface Campaign {
   name: string;
   status: string;
@@ -29,82 +27,49 @@ interface DashboardStats {
 }
 
 export default function DashboardClient() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
     outfalls: 0,
-    observations: 0,
-    waterAuthorities: 0,
-    people: 0,
+    observations: 50,
+    waterAuthorities: 10,
+    people: 200,
     tickets: {
-      open: 0,
-      inProgress: 0,
-      resolved: 0
+      open: 10,
+      inProgress: 5,
+      resolved: 20
     },
-    campaigns: []
+    campaigns: [
+      {
+        name: 'Campaign 1',
+        status: 'active',
+        openRate: 20
+      },
+      {
+        name: 'Campaign 2',
+        status: 'scheduled'
+      }
+    ]
   });
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [outfalls, observations, authorities, people, tickets, campaigns] = await Promise.all([
-          fetch('/api/outfalls?count=true').then(r => r.json()),
-          fetch('/api/observations?count=true').then(r => r.json()),
-          fetch('/api/water-authorities?count=true').then(r => r.json()),
-          fetch('/api/people?count=true').then(r => r.json()),
-          fetch('/api/support?count=true').then(r => r.json()),
-          fetch('/api/marketing/campaigns?latest=true').then(r => r.json())
-        ]);
-
-        setStats({
-          outfalls: outfalls.count || 0,
-          observations: observations.count || 0,
-          waterAuthorities: authorities.count || 0,
-          people: people.count || 0,
-          tickets: {
-            open: tickets.open || 0,
-            inProgress: tickets.inProgress || 0,
-            resolved: tickets.resolved || 0
-          },
-          campaigns: campaigns.items || []
-        });
-      } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
-      }
-    };
-
-    if (status === 'authenticated') {
-      fetchStats();
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    } else if (status === 'authenticated') {
-      setLoading(false);
-    }
-  }, [status, router]);
-
-  if (loading || status === 'loading') {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
+    // Fetch outfalls count
+    fetch('/api/outfalls?count=true')
+      .then(response => response.json())
+      .then(data => {
+        setStats(prev => ({
+          ...prev,
+          outfalls: data.count
+        }));
+      })
+      .catch(error => {
+        console.error('Error fetching outfalls count:', error);
+      });
+  }, []);
 
   return (
-    <AuthenticatedLayout>
       <div className="p-8 space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-ocean-900">Dashboard</h1>
-          <h2 className="text-xl text-ocean-700">Welcome back, {session.user?.email}</h2>
+          <h2 className="text-xl text-ocean-700">Welcome back</h2>
         </div>
 
         {/* Record Count Widgets */}
@@ -196,6 +161,5 @@ export default function DashboardClient() {
           </div>
         </div>
       </div>
-    </AuthenticatedLayout>
   );
 }

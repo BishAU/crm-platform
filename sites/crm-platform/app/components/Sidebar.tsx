@@ -38,8 +38,7 @@ const Sidebar = ({ className }: SidebarProps) => {
       <div className="flex-1 overflow-y-auto">
         <Navigation
           isCollapsed={isCollapsed}
-          pathname={pathname}
-          menuItems={[...sidebarConfig.mainNav, ...sidebarConfig.footerNav]}
+          menuItems={sidebarConfig.mainNav}
         />
       </div>
     </aside>

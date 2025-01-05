@@ -1,4 +1,5 @@
 import { prisma, processCsvFile, filterDuplicateEmails, safeParseValue } from './shared.js';
+import crypto from 'crypto';
 
 export async function importPoliticians(filePath) {
     console.log('\nProcessing Politicians...');
@@ -15,10 +16,10 @@ export async function importPoliticians(filePath) {
                 console.log('Skipping batch - all records were duplicates');
                 return 0;
             }
-
             await prisma.politician.createMany({
                 skipDuplicates: true,
                 data: uniqueRecords.map(r => ({
+                    id: crypto.randomUUID(),
                     name: `${r['First name'] || r['PreferredName'] || ''} ${r['Surname'] || ''}`.trim(),
                     email: r['Email']?.toLowerCase(),
                     party: r['Party'] || r['Political Party'],

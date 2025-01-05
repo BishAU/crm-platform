@@ -1,26 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../app/api/auth/[...nextauth]/config';
-import { Session } from 'next-auth';
+import { NextResponse } from 'next/server';
 
-/**
- * Helper function to handle authentication for route handlers
- */
-export async function withAuth(
-  request: NextRequest,
-  handler: (request: NextRequest, session: Session) => Promise<Response>
-): Promise<Response> {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-    return handler(request, session);
-  } catch (error) {
-    console.error('API Error:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
-  }
-}
+export const ERROR_MESSAGES = {
+  NOT_FOUND: (resource: string) => `${resource} not found`,
+  UNAUTHORIZED: 'Unauthorized',
+  INTERNAL_ERROR: 'Internal server error',
+  INVALID_REQUEST: 'Invalid request'
+};
 
 /**
  * Common response helpers

@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  assetPrefix: 'https://crm.myinvoices.today',
   experimental: {
     outputFileTracingRoot: process.env.NODE_PATH || process.cwd(),
   },

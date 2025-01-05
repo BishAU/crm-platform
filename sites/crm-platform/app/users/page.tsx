@@ -33,6 +33,41 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('username');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showModal, setShowModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create user');
+      }
+
+      setShowModal(false);
+      setNewUser({ username: '', email: '', password: '' });
+      // Refresh the current page
+      fetchUsers({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: searchTerm,
+        sortBy,
+        sortOrder
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+    }
+  };
 
   const fetchUsers = async (params: {
     page: number;
@@ -152,6 +187,40 @@ export default function UsersPage() {
     <AuthenticatedLayout>
       <div className="p-8">
         <h1 className="text-2xl font-bold text-ocean-900 mb-6">User Management</h1>
+        <button
+          className="bg-ocean-500 hover:bg-ocean-700 text-white font-bold py-2 px-4 rounded mb-4"
+          onClick={() => setShowModal(true)}
+        >
+          Add New User
+        </button>
+        {showModal && (
+          <div className="fixed z-10 inset-0 overflow-y-auto">
+            <div className="flex items-center justify-center min-h-screen px-4 text-center">
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowModal(false)}></div>
+              <div className="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6">
+                <div>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Add New User</h3>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">Username</label>
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Username" value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Email</label>
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="Email" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">Password</label>
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="Password" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
+                  </div>
+                  <div className="flex justify-end">
+                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2" onClick={() => setShowModal(false)}>Cancel</button>
+                    <button className="bg-ocean-500 hover:bg-ocean-700 text-white font-bold py-2 px-4 rounded" onClick={handleSubmit}>Add User</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <DataGrid
           rows={users}
           columns={columns}

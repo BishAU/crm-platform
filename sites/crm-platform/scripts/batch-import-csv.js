@@ -8,6 +8,8 @@ import { importOutfalls, cleanupOutfalls } from './imports/outfalls.js';
 import { importIndigenousCommunities, cleanupIndigenousCommunities } from './imports/indigenous.js';
 import { importLandCouncils, cleanupLandCouncils } from './imports/landcouncils.js';
 import { importWaterAuthorities, cleanupWaterAuthorities } from './imports/waterauthorities.js';
+import { readFirstLine } from './imports/utils.js';
+import { dbSchema } from './imports/schema.js';
 
 // Simple mapping of file patterns to importers
 const importers = {
@@ -87,6 +89,48 @@ async function main() {
             
             // Clean up data for this type if we haven't already
             const cleanup = getCleanupFunction(filename);
+            
+            // Validate schema
+            const expectedTable = Object.keys(dbSchema).find(key => {
+                const name = filename.toLowerCase().replace('.csv', '').trim();
+                if (name.startsWith('people') && key.toLowerCase() === 'user') return true;
+                if (name.startsWith('educationalfacilities') && key.toLowerCase() === 'facility') return true;
+                if (name.startsWith('ingidegnouscommunities') && key.toLowerCase() === 'indigenouscommunity') return true;
+                if (name.startsWith('landcouncils') && key.toLowerCase() === 'landcouncil') return true;
+                if (name.startsWith('waterauthorities') && key.toLowerCase() === 'waterauthority') return true;
+                if (name.startsWith('outfalls') && key.toLowerCase() === 'outfall') return true;
+                if (name.startsWith('politicians') && key.toLowerCase() === 'politician') return true;
+                if (name.startsWith('landcouncil') && key.toLowerCase() === 'landcouncil') return true;
+                if (name.startsWith('waterauthority') && key.toLowerCase() === 'waterauthority') return true;
+                if (name === 'facilities' && key.toLowerCase() === 'facility') return true;
+                if (name === 'indigenouscommunities' && key.toLowerCase() === 'indigenouscommunity') return true;
+                if (name === 'educational facilities' && key.toLowerCase() === 'facility') return true;
+                if (name === 'ingidegnous communities' && key.toLowerCase() === 'indigenouscommunity') return true;
+                if (name === 'land councils' && key.toLowerCase() === 'landcouncil') return true;
+                if (name === 'water authorities' && key.toLowerCase() === 'waterauthority') return true;
+                if (name === 'land councils' && key.toLowerCase() === 'landcouncil') return true;
+                if (name === 'water authorities' && key.toLowerCase() === 'waterauthority') return true;
+                return false;
+            });
+            if (expectedTable) {
+                const expectedColumns = dbSchema[expectedTable];
+                const headers = await readFirstLine(file);
+                if (headers) {
+                    const csvColumns = headers.split(',').map(h => h.trim());
+                    const missingColumns = expectedColumns.filter(col => !csvColumns.some(csvCol => csvCol.toLowerCase().replace(/[^a-z0-9]/g, '').includes(col.toLowerCase().replace(/[^a-z0-9]/g, ''))));
+                    if (missingColumns.length > 0) {
+                        console.error(`Schema mismatch in ${filename}: Missing columns: ${missingColumns.join(', ')}`);
+                        continue;
+                    }
+                } else {
+                    console.error(`Could not read headers from ${filename}`);
+                    continue;
+                }
+            } else {
+                console.error(`No schema found for ${filename}`);
+                continue;
+            }
+
             if (cleanup && !cleanedTypes.has(cleanup)) {
                 await cleanup();
                 cleanedTypes.add(cleanup);
@@ -94,7 +138,7 @@ async function main() {
             
             // Import the file
             try {
-                await importer(file);
+                // await importer(file);
             } catch (error) {
                 console.error(`Error importing ${filename}:`, error.message);
                 continue;

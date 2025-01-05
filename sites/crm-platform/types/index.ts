@@ -15,3 +15,10 @@ export interface Customer {
   status: string;
   accountManager: string;
 }
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  accessToken?: string;
+}

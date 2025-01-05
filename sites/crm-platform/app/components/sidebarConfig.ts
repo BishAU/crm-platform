@@ -1,61 +1,83 @@
+import {
+  BarChart3,
+  Building,
+  Building2,
+  Droplet,
+  Map,
+  MessageSquare,
+  Users,
+  List,
+  FileText,
+  Settings,
+  User,
+  Import,
+  LogOut,
+  UserRound,
+  Landmark,
+  Eye,
+  Store,
+  Factory,
+  Waves,
+  Ticket,
+} from 'lucide-react';
+
 export const sidebarConfig = {
   mainNav: [
     {
       name: 'Dashboard',
       href: '/dashboard',
-      icon: '📊',
+      icon: 'BarChart3',
       subItems: [
-        { name: 'People', href: '/people', icon: '👥' },
-        { name: 'Outfalls', href: '/outfalls', icon: '🌊' },
-        { name: 'Water Authorities', href: '/water-authorities', icon: '🏢' },
-        { name: 'Indigenous Communities', href: '/indigenous-communities', icon: '🏛️' },
-        { name: 'Politicians', href: '/politicians', icon: '👔' },
-        { name: 'Observations', href: '/observations', icon: '👁️' },
-        { name: 'Customers', href: '/customers', icon: '🏪' },
-        { name: 'Facilities', href: '/facilities', icon: '🏭' },
-        { name: 'Outfall Types', href: '/outfall-types', icon: '🚰' },
+        { name: 'People', href: '/people', icon: 'Users' },
+        { name: 'Outfalls', href: '/outfalls', icon: 'Droplet' },
+        { name: 'Water Authorities', href: '/water-authorities', icon: 'Building2' },
+        { name: 'Indigenous Communities', href: '/indigenous-communities', icon: 'Landmark' },
+        { name: 'Politicians', href: '/politicians', icon: 'UserRound' },
+        { name: 'Observations', href: '/observations', icon: 'Eye' },
+        { name: 'Customers', href: '/customers', icon: 'Store' },
+        { name: 'Facilities', href: '/facilities', icon: 'Factory' },
+        { name: 'Outfall Types', href: '/outfall-types', icon: 'Waves' },
       ]
     },
     {
       name: 'Marketing',
       href: '/marketing',
-      icon: '📈',
+      icon: 'BarChart3',
       subItems: [
-        { name: 'Lists', href: '/marketing/lists', icon: '📋' },
-        { name: 'Campaigns', href: '/marketing/campaigns', icon: '📢' },
-        { name: 'Templates', href: '/marketing/templates', icon: '📄' }
+        { name: 'Lists', href: '/marketing/lists', icon: 'List' },
+        { name: 'Campaigns', href: '/marketing/campaigns', icon: 'BarChart3' },
+        { name: 'Templates', href: '/marketing/templates', icon: 'FileText' }
       ]
     },
     {
       name: 'Support',
       href: '/support',
-      icon: '🎫',
+      icon: 'Ticket',
       subItems: [
-        { name: 'Tickets', href: '/support/tickets', icon: '🎫' }
+        { name: 'Tickets', href: '/support/tickets', icon: 'Ticket' }
       ]
-    },
-  ],
-  footerNav: [
-    {
-      name: 'Clean Ocean Foundation',
-      href: 'https://www.cleanocean.org/',
-      icon: '',
-      isExternal: true,
     },
     {
       name: 'Settings',
       href: '/settings',
-      icon: '⚙️',
+      icon: 'Settings',
       subItems: [
-        { name: 'Users', href: '/users', icon: '👤' },
+        { name: 'Users', href: '/users', icon: 'User' },
+        { name: 'Import', href: '/settings/import', icon: 'Import' },
       ]
     },
     {
+      name: 'Clean Ocean Foundation',
+      href: 'https://www.cleanocean.org/',
+      icon: 'Building',
+      isExternal: true,
+    },
+    {
       name: 'Sign out',
-      href: '#',
-      icon: '🚪',
-      onClick: 'signOut',
-      isButton: true
+      href: '/logout',
+      icon: 'LogOut',
+      isButton: true,
+      onClick: 'signOut'
     }
   ]
 };

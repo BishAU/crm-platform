@@ -4,13 +4,13 @@ import pkg from 'pg';
 const { Client } = pkg;
 
 const csvFiles = {
-  'educational-facilities': '/home/bish/Downloads/sites/crm-platform/public/imports/EducationalFacilities.csv',
-  'indigenous-communities': '/home/bish/Downloads/sites/crm-platform/public/imports/IngidegnousCommunities.csv',
-  'land-councils': '/home/bish/Downloads/sites/crm-platform/public/imports/LandCouncils.csv',
-  'outfalls': '/home/bish/Downloads/sites/crm-platform/public/imports/outfalls.csv',
-  'people': '/home/bish/Downloads/sites/crm-platform/public/imports/people.csv',
-  'politicians': '/home/bish/Downloads/sites/crm-platform/public/imports/politicians.csv',
-  'water-authorities': '/home/bish/Downloads/sites/crm-platform/public/imports/WaterAuthorities.csv',
+  'educational_facilities': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/EducationalFacilities.csv',
+  'indigenous_communities': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/IngidegnousCommunities.csv',
+  'land_councils': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/LandCouncils.csv',
+  'outfalls': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/outfalls.csv',
+  'people': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/people.csv',
+  'politicians': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/politicians.csv',
+  'water_authorities': '/home/bish/Downloads/sites/crm-platform/public/imports/formatted/WaterAuthorities.csv',
 };
 
 const dbConfig = {
@@ -37,21 +37,33 @@ async function importCsvToTable(filePath, tableName, columnMappings) {
     const columns = Object.keys(columnMappings);
     const values = columns.map(col => {
       const csvHeader = columnMappings[col];
-      const value = record[csvHeader];
-      
+      let value = record[csvHeader.trim()]; // Trim header to remove potential whitespace
+
       // Handle empty or undefined values
       if (value === undefined || value === '') {
         return null;
       }
-      
+
       // Handle comma-separated values by taking the first value
       if (typeof value === 'string' && value.includes(',')) {
-        if (col === 'latitude' || col === 'longtitude') {
+        if (col === 'latitude' || col === 'longitude') {
           const firstValue = value.split(',')[0].trim();
           return parseFloat(firstValue);
         }
         return value.split(',')[0].trim();
       }
+
+      // Attempt to parse dates
+      if (['creationDate', 'dob', 'lastUpdated'].includes(col) && value) {
+        return new Date(value);
+      }
+
+      // Attempt to parse booleans (case-insensitive)
+      if (['annualReportPrepared', 'newsletter', 'minister'].includes(col) && value) {
+        if (value.toLowerCase() === 'yes' || value.toLowerCase() === 'true') return true;
+        if (value.toLowerCase() === 'no' || value.toLowerCase() === 'false') return false;
+      }
+
       return value;
     });
 
@@ -65,9 +77,9 @@ async function importCsvToTable(filePath, tableName, columnMappings) {
       console.warn('Skipping record due to missing required fields:', record);
       continue;
     }
-    
+
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
-    
+
     const query = `
       INSERT INTO "${tableName}" (${columns.map(c => `"${c}"`).join(', ')})
       VALUES (${placeholders})
@@ -83,8 +95,90 @@ async function importCsvToTable(filePath, tableName, columnMappings) {
       console.error('Record:', record);
     }
   }
-  
+
   console.log(`Imported data to ${tableName} table`);
+}
+
+async function importOutfalls(filePath) {
+  console.log(`Reading ${filePath}...`);
+  const csvContent = readFileSync(filePath, 'utf-8');
+  const records = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+
+  console.log(`Found ${records.length} records in ${filePath}`);
+
+  for (const record of records) {
+    let waterAuthorityId = null;
+    const waterAuthorityName = record['Authority']?.trim();
+    if (waterAuthorityName) {
+      const waterAuthorityResult = await client.query(
+        'SELECT id FROM water_authorities WHERE name = $1',
+        [waterAuthorityName]
+      );
+      if (waterAuthorityResult.rows.length > 0) {
+        waterAuthorityId = waterAuthorityResult.rows[0].id;
+      } else {
+        const insertResult = await client.query(
+          'INSERT INTO water_authorities (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id',
+          [waterAuthorityName]
+        );
+        waterAuthorityId = insertResult.rows[0].id;
+      }
+    }
+
+    let indigenousCommunityId = null;
+    const indigenousCommunityName = record['Indigenous Nation']?.trim();
+    if (indigenousCommunityName) {
+      const communityResult = await client.query(
+        'SELECT id FROM indigenous_communities WHERE name = $1',
+        [indigenousCommunityName]
+      );
+      if (communityResult.rows.length > 0) {
+        indigenousCommunityId = communityResult.rows[0].id;
+      } else {
+        const insertResult = await client.query(
+          'INSERT INTO indigenous_communities (name) VALUES ($1) ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id',
+          [indigenousCommunityName]
+        );
+        indigenousCommunityId = insertResult.rows[0].id;
+      }
+    }
+
+    const query = `
+      INSERT INTO outfalls (outfallName, authority, contact, contact_email, contact_name, indigenousNation, landCouncil, latitude, longitude, state, type, "waterAuthorityId", "indigenousCommunityId")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ON CONFLICT DO NOTHING
+    `;
+
+    const values = [
+      record['Outfall']?.trim(),
+      record['Authority']?.trim(),
+      record['Contact']?.trim(),
+      record['Contact_email']?.trim(),
+      record['Contact_name']?.trim(),
+      record['Indigenous Nation']?.trim(),
+      record['Land Council']?.trim(),
+      record['Latitude']?.trim(),
+      record['Longitude']?.trim(),
+      record['State']?.trim(),
+      record['Type']?.trim(),
+      waterAuthorityId,
+      indigenousCommunityId,
+    ];
+
+    try {
+      await client.query(query, values);
+    } catch (error) {
+      console.error('Error importing record to outfalls:', error);
+      console.error('Query:', query);
+      console.error('Values:', values);
+      console.error('Record:', record);
+    }
+  }
+
+  console.log(`Imported data to outfalls table`);
 }
 
 async function main() {
@@ -94,53 +188,41 @@ async function main() {
     console.log('Connected successfully');
 
     // Import educational facilities
-    await importCsvToTable(csvFiles['educational-facilities'], 'facilities', {
+    await importCsvToTable(csvFiles['educational_facilities'], 'facility', {
       "name": '﻿Facility Name',
       "type": 'Type',
       "latitude": 'Latitude',
-      "longtitude": 'Longtitude',
+      "longitude": 'Longtitude',
       "postcode": 'Postcode',
       "regionType": 'Region Type',
       "sector": 'Sector',
-      "surburb": 'Surburb'
+      "suburb": 'Surburb'
     });
 
     // Import indigenous communities
-    await importCsvToTable(csvFiles['indigenous-communities'], 'indigenous_communities', {
+    await importCsvToTable(csvFiles['indigenous_communities'], 'indigenous_community', {
       "name": "﻿Community Name",
-      "associatedIndigenousCommunities": "Related Water Authorities"
+      "waterAuthorities": "Related Water Authorities"
     });
 
     // Import land councils
-    await importCsvToTable(csvFiles['land-councils'], 'land_councils', {
+    await importCsvToTable(csvFiles['land_councils'], 'land_council', {
       "name": "﻿Name",
       "email": "Email",
       "lgas": "LGAs",
-      "numberOfOutfalls": "Number of outfalls",
+      "outfallCount": "Number of outfalls",
       "outfalls": "Outfalls",
       "phone": "Phone"
     });
 
-    // Import outfalls
-    await importCsvToTable(csvFiles['outfalls'], 'outfalls', {
-      "name": 'Outfall',
-      "authority": 'Authority',
-      "contact": 'Contact',
-      "contact_email": 'Contact_email',
-      "contact_name": 'Contact_name',
-      "indigenousNation": 'Indigenous Nation',
-      "landCouncil": 'Land Council',
-      "latitude": 'Latitude',
-      "longitude": 'Longitude',
-      "state": 'State',
-      "type": 'Type'
-    });
+    // Import outfalls, handling relationships
+    await importOutfalls(csvFiles['outfalls']);
 
     // Import people
-    await importCsvToTable(csvFiles['people'], 'people', {
+    await importCsvToTable(csvFiles['people'], 'user', {
       "abn": 'ABN',
       "address1": 'Address 1',
-      "annualReportPreparedAndTabled": 'Annual Report Prepared and Tabled?',
+      "annualReportPrepared": 'Annual Report Prepared and Tabled?',
       "annualReports": 'Annual Reports',
       "auditor": 'Auditor',
       "budgetDocumentation": 'Budget Documentation',
@@ -148,28 +230,26 @@ async function main() {
       "classification": 'Classification',
       "company": 'Company',
       "country": 'Country',
-      "createAt": 'Create At',
-      "creationDate": 'Creation Date',
+      "creationDate": 'Create At',
       "dob": 'DOB',
       "description": 'Description',
       "email": 'Email',
-      "establishedByUnder": 'Established By / Under',
-      "establishedByUnderMoreInfo": 'Established by/Under More Info',
+      "establishedBy": 'Established By / Under',
+      "establishedByInfo": 'Established by/Under More Info',
       "firstName": 'First Name',
-      "name": 'Full Name',
-      "gfsFunctionSectorReported": 'GFS Function / Sector Reported',
-      "gfsSectorClassification": 'GFS Sector Classification',
+      "fullName": 'Full Name',
+      "gfsFunction": 'GFS Function / Sector Reported',
+      "gfsSector": 'GFS Sector Classification',
       "headOfficeCountry": 'Head Office Country',
       "headOfficePostcode": 'Head Office Postcode',
       "headOfficeState": 'Head Office State',
-      "headOfficeStreetAddress": 'Head Office Street Address',
+      "headOfficeAddress": 'Head Office Street Address',
       "headOfficeSuburb": 'Head Office Suburb',
       "lastName": 'Last Name',
       "materiality": 'Materiality',
       "newsletter": 'Newsletter',
       "optInStatus": 'Opt In Status',
       "organisation": 'Organisation',
-      "organistion": 'Organistion',
       "psActBody": 'PS Act Body',
       "phone": 'Phone',
       "phoneNumber": 'Phone Number',
@@ -180,7 +260,7 @@ async function main() {
       "postcode": 'Postcode',
       "relationship": 'Relationship',
       "state": 'State',
-      "strategicCorporateOrganisationalPlan": 'Strategic/Corporate/Organisational Plan',
+      "strategicPlan": 'Strategic/Corporate/Organisational Plan',
       "surname": 'Surname',
       "title": 'Title',
       "typeOfBody": 'Type of Body',
@@ -188,7 +268,7 @@ async function main() {
     });
 
     // Import politicians
-    await importCsvToTable(csvFiles['politicians'], 'politicians', {
+    await importCsvToTable(csvFiles['politicians'], 'politician', {
       "name": "Politician Name",
       "address": "Address",
       "city": "City",
@@ -205,7 +285,7 @@ async function main() {
       "minPhone": "MinPhone",
       "minister": "Minister",
       "poAddress": "POAddress",
-      "poStcode": "POstcode",
+      "poPostcode": "POstcode",
       "party": "Party",
       "partyAbb": "PartyAbb",
       "phone": "Phone",
@@ -218,14 +298,14 @@ async function main() {
       "surname": "Surname",
       "title": "Title",
       "web": "Web",
-      "images": "images",
+      "imageUrl": "images",
       "fullName": "Full Name"
     });
 
     // Import water authorities
-    await importCsvToTable(csvFiles['water-authorities'], 'water_authorities', {
+    await importCsvToTable(csvFiles['water_authorities'], 'water_authority', {
       "name": "﻿Authority Name",
-      "associatedIndigenousCommunities": "Associated Indigenous Communities"
+      "indigenousCommunities": "Associated Indigenous Communities"
     });
 
     console.log('All CSV data migrated successfully.');

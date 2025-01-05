@@ -26,132 +26,175 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-.ocean {
-  height: 40%;
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background: #015871;
-  overflow: hidden;
+/* Ocean Background */
+.ocean-bg {
+    background: url(/oceanwater.png.png) no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+/* Waves Animation */
+.waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background-color: transparent;
+    overflow: hidden;
 }
 
 .wave {
-  background: url(/wave.svg) repeat-x;
-  position: absolute;
-  bottom: -10px;
-  width: 6400px;
-  height: 198px;
-  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
-  transform: translate3d(0, 0, 0);
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 200px;
+    animation: wave 7s infinite linear, swell 7s ease-in-out infinite;
+    transform-origin: 50% 50%;
 }
 
-.wave:nth-of-type(2) {
-  bottom: -25px;
-  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
-  opacity: 0.8;
+.wave-1 { animation: wave 8s infinite linear, swell 8s ease-in-out infinite; opacity: 0.3; }
+.wave-2 { animation: wave 10s infinite linear, swell 10s ease-in-out infinite; opacity: 0.6; }
+.wave-3 { animation: wave 12s infinite linear, swell 12s ease-in-out infinite; opacity: 0.9; }
+
+/* Sky Animation */
+.sky {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    overflow: hidden;
 }
 
-.wave:nth-of-type(3) {
-  bottom: -40px;
-  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.25s infinite, swell 7s ease -2.5s infinite;
-  opacity: 0.6;
+/* Clouds */
+.cloud {
+    position: absolute;
+    font-size: 3rem;
+    animation: float-cloud 30s linear infinite;
+    opacity: 0.7;
 }
 
+.cloud:nth-child(1) { top: 10%; animation-duration: 40s; animation-delay: 0s; }
+.cloud:nth-child(2) { top: 20%; animation-duration: 35s; animation-delay: -5s; }
+.cloud:nth-child(3) { top: 30%; animation-duration: 45s; animation-delay: -10s; }
+.cloud:nth-child(4) { top: 15%; animation-duration: 38s; animation-delay: -15s; }
+.cloud:nth-child(5) { top: 25%; animation-duration: 42s; animation-delay: -20s; }
+
+/* Paragliders */
+.paraglider {
+    position: absolute;
+    font-size: 2rem;
+    animation: float-paraglider 40s linear infinite;
+}
+
+.paraglider:nth-child(1) { top: 15%; animation-delay: 0s; }
+.paraglider:nth-child(2) { top: 25%; animation-delay: -20s; }
+
+/* Surfer */
+.surfer {
+    position: absolute;
+    font-size: 2rem;
+    bottom: 30px;
+    left: 0;
+    transition: transform 0.2s ease-out;
+}
+
+/* Fish */
+.fish {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: swim 20s linear infinite;
+}
+
+.fish:nth-child(1) { bottom: 40px; animation-delay: 0s; }
+.fish:nth-child(2) { bottom: 60px; animation-delay: -10s; }
+.fish:nth-child(3) { bottom: 80px; animation-delay: -5s; }
+
+/* Keyframes */
 @keyframes wave {
-  0% {
-    margin-left: 0;
-  }
-  100% {
-    margin-left: -1600px;
-  }
+    0% { transform: translateX(0) translateZ(0) scaleY(1); }
+    50% { transform: translateX(-25%) translateZ(0) scaleY(1.1); }
+    100% { transform: translateX(-50%) translateZ(0) scaleY(1); }
 }
 
 @keyframes swell {
-  0%, 100% {
-    transform: translate3d(0, -25px, 0);
-  }
-  50% {
-    transform: translate3d(0, 5px, 0);
-  }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
-.sky {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60%;
-  overflow: hidden;
+@keyframes float-cloud {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100vw); }
 }
 
-.cloud {
-  position: absolute;
-  font-size: 60px;
-  animation: float 30s linear infinite;
-  opacity: 0.8;
-}
-
-.cloud:nth-child(1) { top: 10%; animation-duration: 45s; }
-.cloud:nth-child(2) { top: 20%; animation-duration: 37s; animation-delay: -5s; }
-.cloud:nth-child(3) { top: 30%; animation-duration: 42s; animation-delay: -10s; }
-.cloud:nth-child(4) { top: 15%; animation-duration: 38s; animation-delay: -15s; }
-.cloud:nth-child(5) { top: 25%; animation-duration: 40s; animation-delay: -20s; }
-
-@keyframes float {
-  from {
-    left: -10%;
-  }
-  to {
-    left: 110%;
-  }
-}
-
-.paraglider {
-  position: absolute;
-  font-size: 60px;
-  animation: glide 25s linear infinite;
-  opacity: 0.9;
-}
-
-.paraglider:nth-child(6) { top: 35%; animation-duration: 28s; }
-.paraglider:nth-child(7) { top: 45%; animation-duration: 32s; animation-delay: -10s; }
-
-@keyframes glide {
-  0% {
-    left: -10%;
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-  100% {
-    left: 110%;
-    transform: translateY(0);
-  }
-}
-
-.surfer {
-  position: absolute;
-  font-size: 40px;
-  animation: surf 15s ease-in-out infinite;
-  z-index: 10;
+@keyframes float-paraglider {
+    from { transform: translateX(-100%) rotate(10deg); }
+    50% { transform: translateX(50vw) rotate(-5deg); }
+    to { transform: translateX(100vw) rotate(10deg); }
 }
 
 @keyframes surf {
-  0% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-20px) rotate(-5deg);
-  }
-  50% {
-    transform: translateY(0) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-15px) rotate(5deg);
-  }
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
+    from { transform: translateX(-100%) rotate(0deg); }
+    to { transform: translateX(100vw) rotate(0deg); }
+}
+
+@keyframes swim {
+    from { transform: translateX(-100%); }
+    50% { transform: translateX(50vw) translateY(-20px); }
+    to { transform: translateX(100vw); }
+}
+
+/* Content Animations */
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Status Indicator */
+.status-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(229, 62, 62, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+    }
 }

@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
-import { withAuth, jsonResponse, errorResponse } from '../../../lib/api';
+import { jsonResponse, errorResponse } from '../../../lib/api';
 import * as db from '../../../lib/db';
-import { Session } from 'next-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,9 +14,8 @@ interface OutfallObservation {
 }
 
 export async function GET(request: NextRequest) {
-  return withAuth(request, async (req: NextRequest, session: Session) => {
     try {
-      const searchParams = req.nextUrl.searchParams;
+      const searchParams = request.nextUrl.searchParams;
       const countOnly = searchParams.get('count') === 'true';
 
       if (countOnly) {
@@ -39,5 +37,4 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching observations:', error);
       return errorResponse('Failed to fetch observations', 500);
     }
-  });
 }

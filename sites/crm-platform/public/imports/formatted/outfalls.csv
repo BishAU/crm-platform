@@ -1,4 +1,4 @@
-Authority,Contact,Email,Contact_name,Indigenous Nation,Land Council,Latitude,Longitude,Outfall,State,Type
+id,Authority,Contact,contact_email,Contact_name,Indigenous Nation,Land Council,Latitude,Longitude,outfallName,State,Type
 Ballina Shire Council,02 6686 7055,reception@jali.com.au,,Bundjalung,Jali Land Council,-28.8221330,153.6083800,Skennars Head (Lennox Head),New South Wales,Ocean
 Barwon Water,03 5222 5889 or 0417 593 000,paul@wathcorp.com.au,"Paul Davis, CEO",Wathaurong,Wadawurrung Traditional Owners Aboriginal Corporation,-38.407325,144.200849,Anglesea WRP,Victoria,Ocean
 Barwon Water,0429 544 343,marcus.clarke@easternmaar.com.au,Marcus Clarke (CEO),Gadubanud,Eastern Maar Aboriginal Corporation,-38.782708,143.660731,Apollo Bay WRP,Victoria,Ocean

@@ -1,4 +1,5 @@
 import { prisma, processCsvFile } from './shared.js';
+import crypto from 'crypto';
 
 export async function importIndigenousCommunities(filePath) {
     console.log('\nProcessing Indigenous Communities...');
@@ -29,7 +30,12 @@ export async function importIndigenousCommunities(filePath) {
             // Create all communities in a single batch operation
             if (uniqueCommunities.size > 0) {
                 await prisma.indigenousCommunity.createMany({
-                    data: Array.from(uniqueCommunities).map(name => ({ name })),
+                    data: Array.from(uniqueCommunities).map(name => ({
+                        id: crypto.randomUUID(),
+                        name,
+                        region: null,
+                        population: null
+                    })),
                     skipDuplicates: true
                 });
             }

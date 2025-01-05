@@ -85,4 +85,25 @@ interface Expect<T = any> {
   toMatchInlineSnapshot(snapshot?: string): void;
   toThrowErrorMatchingSnapshot(): void;
   toThrowErrorMatchingInlineSnapshot(snapshot?: string): void;
+  // Add @testing-library/jest-dom matchers
+  toBeInTheDocument(): void;
+  toBeDisabled(): void;
+  toBeEnabled(): void;
+  toBeEmpty(): void;
+  toBeEmptyDOMElement(): void;
+  toBeInvalid(): void;
+  toBeRequired(): void;
+  toBeValid(): void;
+  toBeVisible(): void;
+  toContainElement(element: HTMLElement | null): void;
+  toContainHTML(htmlText: string): void;
+  toHaveAttribute(attr: string, value?: string): void;
+  toHaveClass(...classNames: string[]): void;
+  toHaveFocus(): void;
+  toHaveFormValues(expectedValues: { [key: string]: any }): void;
+  toHaveStyle(css: string | { [key: string]: any }): void;
+  toHaveTextContent(text: string | RegExp, options?: { normalizeWhitespace: boolean }): void;
+  toHaveValue(value?: string | string[] | number): void;
+  toBeChecked(): void;
+  toHaveBeenCalledWith(...args: any[]): void;
 }

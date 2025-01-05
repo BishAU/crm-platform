@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CSV_DIRECTORY = path.join(process.cwd(), 'public', 'imports');
+const CSV_DIRECTORY = path.join(process.cwd(), 'public', 'imports', 'formatted');
 
 // Function to safely read just the first line of a file
 function readFirstLine(filePath) {
@@ -18,7 +18,6 @@ function readFirstLine(filePath) {
                 const newlineIndex = chunk.indexOf('\n');
                 if (newlineIndex !== -1) {
                     firstLine += chunk.slice(0, newlineIndex);
-                    fileStream.destroy();
                     resolve(firstLine);
                 } else {
                     firstLine += chunk;
@@ -36,12 +35,23 @@ function readFirstLine(filePath) {
 
 // Database schema from prisma/schema.prisma
 const dbSchema = {
-    Outfall: ['id', 'authority', 'contact', 'contact_email', 'contact_name', 'indigenousNation', 'landCouncil', 'latitude', 'longitude', 'state', 'type', 'outfallName'],
-    Facility: ['id', 'latitude', 'longitude', 'postcode', 'regionType', 'sector', 'suburb', 'type', 'creatorId'],
-    IndigenousCommunity: ['id', 'name', 'region', 'population'],
-    Politician: ['id', 'name', 'email', 'party', 'position', 'state'],
-    User: ['id', 'name', 'email', 'password', 'isAdmin'],
-    OutfallObservation: ['id', 'outfallId', 'date', 'flow']
+    User: ['id', 'name', 'email', 'password', 'isAdmin', 'abn', 'address1', 'annualReportPrepared', 'annualReports', 'auditor', 'budgetDocumentation', 'city', 'classification', 'company', 'country', 'creationDate', 'dob', 'description', 'establishedBy', 'establishedByInfo', 'firstName', 'fullName', 'gfsSector', 'gfsFunction', 'headOfficeCountry', 'headOfficePostcode', 'headOfficeState', 'headOfficeAddress', 'headOfficeSuburb', 'lastName', 'materiality', 'newsletter', 'optInStatus', 'organisation', 'psActBody', 'phone', 'phoneNumber', 'physicalAddress', 'physicalAddressState', 'portfolio', 'portfolioDept', 'postcode', 'relationship', 'state', 'strategicPlan', 'surname', 'title', 'typeOfBody', 'websiteAddress', 'createdAt', 'updatedAt'],
+    Account: ['id', 'userId', 'type', 'provider', 'providerAccountId', 'refresh_token', 'access_token', 'expires_at', 'token_type', 'scope', 'id_token', 'session_state'],
+    Session: ['id', 'sessionToken', 'userId', 'expires'],
+    VerificationToken: ['identifier', 'token', 'expires'],
+    Outfall: ['id', 'authority', 'contact', 'contact_email', 'contact_name', 'indigenousNation', 'landCouncil', 'latitude', 'longitude', 'state', 'type', 'outfallName', 'createdAt', 'updatedAt', 'waterAuthorityId', 'indigenousCommunityId'],
+    OutfallPostcode: ['id', 'outfallId', 'postcode', 'radius', 'createdAt', 'updatedAt'],
+    Politician: ['id', 'name', 'email', 'party', 'position', 'state', 'address', 'city', 'eoAddress', 'electorate', 'fax', 'firstName', 'gender', 'house', 'lastName', 'lastUpdated', 'minAddress', 'minPhone', 'minister', 'poAddress', 'poPostcode', 'partyAbb', 'phone', 'photo', 'politicalParty', 'preferredName', 'salutation', 'surname', 'title', 'web', 'imageUrl', 'fullName', 'createdAt', 'updatedAt'],
+    MarketingList: ['id', 'name', 'createdAt', 'updatedAt', 'creatorId'],
+    MarketingListEntity: ['id', 'marketingListId', 'entityType', 'createdAt', 'updatedAt'],
+    MarketingListFilter: ['id', 'marketingListEntityId', 'field', 'operator', 'createdAt', 'updatedAt'],
+    Facility: ['id', 'latitude', 'longitude', 'postcode', 'regionType', 'sector', 'suburb', 'type', 'name', 'createdAt', 'updatedAt', 'creatorId'],
+    IndigenousCommunity: ['id', 'name', 'region', 'population', 'waterAuthorities', 'createdAt', 'updatedAt'],
+    OutfallObservation: ['id', 'outfallId', 'date', 'flow', 'createdAt', 'updatedAt'],
+    SupportTicket: ['id', 'title', 'description', 'status', 'assignedToId', 'createdAt', 'updatedAt'],
+    LandCouncil: ['id', 'name', 'email', 'lgas', 'outfallCount', 'outfalls', 'phone', 'createdAt', 'updatedAt'],
+    WaterAuthority: ['id', 'name', 'indigenousCommunities', 'createdAt', 'updatedAt'],
+    Campaign: ['id', 'name', 'description', 'status', 'startDate', 'endDate', 'budget', 'targetAudience', 'createdAt', 'updatedAt']
 };
 
 async function analyzeCSVs() {
@@ -69,6 +79,9 @@ async function analyzeCSVs() {
             else if (file.toLowerCase().includes('indigenous')) likelyTable = 'IndigenousCommunity';
             else if (file.toLowerCase().includes('politician')) likelyTable = 'Politician';
             else if (file.toLowerCase().includes('people')) likelyTable = 'User';
+            else if (file.toLowerCase().includes('land')) likelyTable = 'LandCouncil';
+            else if (file.toLowerCase().includes('water')) likelyTable = 'WaterAuthority';
+            else if (file.toLowerCase().includes('ingidegnous')) likelyTable = 'IndigenousCommunity';
             
             if (likelyTable && dbSchema[likelyTable]) {
                 console.log(`\nSuggested mapping to ${likelyTable} table:`);

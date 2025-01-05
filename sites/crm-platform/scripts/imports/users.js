@@ -19,6 +19,7 @@ export async function importUsers(filePath) {
             await prisma.user.createMany({
                 skipDuplicates: true,
                 data: uniqueRecords.map(r => ({
+                    id: crypto.randomUUID(),
                     name: `${r['First Name'] || ''} ${r['Last Name'] || ''}`.trim(),
                     email: r['Email']?.toLowerCase(),
                     firstName: r['First Name'],
@@ -38,7 +39,9 @@ export async function importUsers(filePath) {
                     portfolioDept: r['Portfolio Department'],
                     relationship: r['Relationship'],
                     newsletter: safeParseValue(r['Newsletter'], 'boolean'),
-                    optInStatus: r['Opt In Status']
+                    optInStatus: r['Opt In Status'],
+                    password: 'defaultpassword',
+                    isAdmin: false
                 }))
             });
 

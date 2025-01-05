@@ -1,16 +1,14 @@
-import { Suspense } from 'react';
-import MarketingListsClient from './MarketingListsClient';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import AuthenticatedLayout from '@components/AuthenticatedLayout';
 
 export default function MarketingListsPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean-600"></div>
+    <AuthenticatedLayout>
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Marketing Lists</h1>
+        <p>This page will allow you to create and manage marketing lists.</p>
       </div>
-    }>
-      <MarketingListsClient />
-    </Suspense>
+    </AuthenticatedLayout>
   );
 }

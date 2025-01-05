@@ -3,10 +3,14 @@ import { parse } from 'url';
 import next from 'next';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
+
+console.log('process.version:', process.version);
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'crm.myinvoices.today';
-const port = 3100;
+const port = 3104;
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();

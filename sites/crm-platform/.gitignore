@@ -67,3 +67,6 @@ __pycache__/
 
 # Build artifacts
 .swc/
+
+*aiCoder/llmConfig*key*
+*aiCoder/backups/*

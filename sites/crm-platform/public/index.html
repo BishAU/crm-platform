@@ -3,30 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under Maintenance</title>
+    <title>Login - CRM Platform</title>
+    <link rel="stylesheet" href="/styles.css">
     <style>
         body {
+            margin: 0;
+            padding: 0;
             font-family: sans-serif;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .sky {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87ceeb, #e0f6ff);
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 2s linear infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .ocean {
+            height: 5%;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            background: #015871;
+        }
+
+        .wave {
+            background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg) repeat-x;
+            position: absolute;
+            width: 6400px;
+            height: 198px;
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: translate3d(0, 0, 0);
+            bottom: 0;
+        }
+
+        .wave:nth-of-type(2) {
+            animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+            opacity: 1;
+        }
+
+        @keyframes wave {
+            0% { margin-left: 0; }
+            100% { margin-left: -1600px; }
+        }
+
+        @keyframes swell {
+            0%, 100% { transform: translate3d(0, -25px, 0); }
+            50% { transform: translate3d(0, 5px, 0); }
+        }
+
+        .login-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
         }
-        .logo {
+
+        .login-container img {
             width: 200px;
-            margin-bottom: 20px;
+            margin-bottom: 2rem;
         }
-        .message {
-            font-size: 2em;
-            color: #333;
+
+        .login-container h1 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .login-container button {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .login-container button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .error-message {
+            display: none;
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .error-message.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <img src="/wave.svg" alt="Clean Ocean Logo" class="logo">
-    <div class="message">Under Maintenance</div>
+    <div class="sky"></div>
+    <div class="ocean">
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <!-- Login container -->
+    <div class="login-container">
+        <img src="/images/cof_logo.png" alt="Logo" class="logo">
+        <h1>Welcome Back</h1>
+        <div id="errorMessage" class="error-message"></div>
+        <form id="loginForm" action="/api/auth/callback/credentials" method="post">
+            <input type="hidden" name="csrfToken" id="csrfToken">
+            <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email">
+            <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password">
+            <button type="submit">Login</button>
+        </form>
+        <a href="https://cleanocean.org/" style="display: block; margin-top: 1rem;">Visit us at cleanocean.org</a>
+    </div>
+
+    <script>
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            document.querySelector('.sky').appendChild(star);
+        }
+
+        for (let i = 0; i < 100; i++) {
+            createStar();
+        }
+
+        async function getCsrfToken() {
+            try {
+                const res = await fetch('/api/auth/csrf');
+                const csrf = await res.json();
+                document.getElementById('csrfToken').value = csrf.csrfToken;
+            } catch (error) {
+                showError('Failed to initialize login. Please try again.');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        getCsrfToken();
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch('/api/auth/callback/credentials', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        csrfToken: document.getElementById('csrfToken').value,
+                        json: true,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                // Always redirect to dashboard after successful login
+                window.location.href = '/dashboard';
+            } catch (error) {
+                showError('Login failed. Please check your credentials and try again.');
+            }
+        });
+    </script>
 </body>
 </html>
