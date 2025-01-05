@@ -70,3 +70,4 @@ __pycache__/
 
 *aiCoder/llmConfig*key*
 *aiCoder/backups/*
+logs/*.log
