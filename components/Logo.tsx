@@ -1,4 +1,5 @@
 'use client';
+import { error } from 'console';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -12,16 +13,12 @@ export default function Logo({ className = '', variant = 'light' }: LogoProps) {
 
   return (
     <Link href="/dashboard" className={`flex items-center ${className}`}>
-      <Image
+      <img
         src="/images/cof_logo.png"
         alt="Clean Ocean Logo"
-        width={48}
-        height={48}
         className="h-12 w-auto"
+        style={{width: '48px', height: '48px'}}
       />
-      <div className={`font-bold text-2xl ml-3 ${textColor}`}>
-        Clean Ocean
-      </div>
     </Link>
   );
 }

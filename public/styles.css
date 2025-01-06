@@ -7,7 +7,6 @@ body {
     align-items: center;
     min-height: 100vh;
     color: #333;
-    background-image: url('/images/underwater.avif');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -25,19 +24,6 @@ body {
     z-index: 1;
 }
 
-.cloud {
-    position: absolute;
-    opacity: 0.8;
-    z-index: 2;
-    animation-name: moveCloud;
-    animation-timing_function: linear;
-    animation-iteration-count: infinite;
-}
-
-@keyframes moveCloud {
-    from { transform: translateX(100vw); }
-    to { transform: translateX(-200%); }
-}
 
 .wave-image,
 .parallax-wave {

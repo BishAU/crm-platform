@@ -1,0 +1,25 @@
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    font-family: sans-serif;
+}
+
+.container {
+    text-align: center;
+}
+
+.error-code {
+    font-size: 10em;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 2px 2px 4px #aaa;
+}
+
+.error-message {
+    font-size: 2em;
+    color: #555;
+}

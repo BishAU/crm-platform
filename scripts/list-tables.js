@@ -26,7 +26,7 @@ async function main() {
 
     // Then, show sample data from Outfall table
     console.log("\nSample data from Outfall table:");
-    const outfallQuery = await pool.query('SELECT * FROM "outfalls" LIMIT 5;');
+    const outfallQuery = await pool.query('SELECT * FROM "Outfall" LIMIT 5;');
     console.log(JSON.stringify(outfallQuery.rows, null, 2));
 
   } catch (err) {
