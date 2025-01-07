@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   experimental: {
     outputFileTracingRoot: process.env.NODE_PATH || process.cwd(),
-    // Enable more stable handling of build output
-    outputStandalone: true,
   },
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://crm.myinvoices.today',
@@ -37,5 +36,3 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
 };
-
-export default nextConfig;
