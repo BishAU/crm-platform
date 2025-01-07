@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@lib/prisma';
 import { parse } from 'csv-parse/sync';
-import { getRequiredFields, validateFieldValue, getFieldTypes } from '@/lib/schemaUtils';
+import { getRequiredFields, validateFieldValue, getFieldTypes } from '@lib/schemaUtils';
 
 interface SchemaColumn {
   column_name: string;

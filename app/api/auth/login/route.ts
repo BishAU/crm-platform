@@ -1,15 +1,25 @@
-import { authorize } from 'lib/auth';
+import { auth, signIn } from '@lib/auth';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
-    const user = await authorize({ email, password });
+    
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
 
-    if (user?.accessToken) {
-      return NextResponse.json({ accessToken: user.accessToken });
-    } else {
+    if (result?.error) {
       return NextResponse.json({ message: 'Invalid email or password' }, { status: 401 });
+    }
+
+    const session = await auth();
+    if (session) {
+      return NextResponse.json({ session });
+    } else {
+      return NextResponse.json({ message: 'Authentication failed' }, { status: 401 });
     }
   } catch (error: any) {
     console.error('Login error:', error);
