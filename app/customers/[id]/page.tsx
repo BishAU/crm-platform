@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DetailView from '@components/DetailView';
+import DetailView from '../../../components/DetailView/index.tsx';
 import { useParams } from 'next/navigation';
-import AuthenticatedLayout from '@components/AuthenticatedLayout';
+import AuthenticatedLayout from '../../../components/AuthenticatedLayout.tsx';
 
 export default function CustomerPage() {
   const [customer, setCustomer] = useState<any>(null);

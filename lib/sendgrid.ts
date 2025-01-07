@@ -58,3 +58,16 @@ export async function sendEmail(to: string, subject: string, html: string) {
     return false;
   }
 }
+
+export async function listDesigns() {
+  try {
+    const [response] = await client.request({
+      method: 'GET',
+      url: '/v3/designs',
+    });
+    return response.body;
+  } catch (error) {
+    console.error('Error fetching designs:', error);
+    return null;
+  }
+}

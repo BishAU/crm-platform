@@ -1,50 +1,54 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
+import { prisma } from '@lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export async function GET(req: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1');
+    const { searchParams } = new URL(request.url);
+    const countOnly = searchParams.get('count') === 'true';
+    const page = parseInt(searchParams.get('page') || '1', 10);
     const search = searchParams.get('search') || '';
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
+
+    // If only count is requested, return count
+    if (countOnly) {
+      const count = await prisma.observation.count();
+      return NextResponse.json({ count });
+    }
+
     const pageSize = 10;
+    const skip = (page - 1) * pageSize;
 
     // Build filter conditions
-    const where = search
-      ? {
-          OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
-            { type: { contains: search, mode: 'insensitive' } },
-            { contact_name: { contains: search, mode: 'insensitive' } },
-            { contact_email: { contains: search, mode: 'insensitive' } },
-          ],
-        }
-      : {};
+    const where: Prisma.ObservationWhereInput = search ? {
+      OR: [
+        { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { description: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { type: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { contact_name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { contact_email: { contains: search, mode: Prisma.QueryMode.insensitive } },
+      ],
+    } : {};
 
-    // Get total count for pagination
-    const totalItems = await prisma.observation.count({ where });
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    // Get paginated and sorted results
-    const items = await prisma.observation.findMany({
-      where,
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-    });
+    const [items, total] = await Promise.all([
+      prisma.observation.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { [sortBy]: sortOrder }
+      }),
+      prisma.observation.count({ where })
+    ]);
 
     return NextResponse.json({
       items,
-      totalItems,
-      totalPages,
-      currentPage: page,
+      page,
+      totalPages: Math.ceil(total / pageSize),
+      totalItems: total
     });
   } catch (error) {
-    console.error('Error fetching observations:', error);
+    console.error('Error in observations API:', error);
     return NextResponse.json(
       { error: 'Failed to fetch observations' },
       { status: 500 }
@@ -52,7 +56,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const data = await req.json();
     const observation = await prisma.observation.create({

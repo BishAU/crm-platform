@@ -13,6 +13,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { Filter, SavedViewData } from '../../lib/savedViews';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 interface Column {
   key: string;
@@ -36,7 +37,7 @@ interface EntityGridProps {
 
 export function EntityGrid({
   title,
-  columns,
+  columns: initialColumns,
   data,
   onSort,
   onFilter,
@@ -53,6 +54,7 @@ export function EntityGrid({
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filter[]>([]);
   const [newViewName, setNewViewName] = useState('');
+  const [columns, setColumns] = useState<Column[]>(initialColumns);
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -71,6 +73,16 @@ export function EntityGrid({
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     onPageChange?.(page);
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(columns);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setColumns(items);
   };
 
   const exportToCsv = () => {
@@ -219,30 +231,51 @@ export function EntityGrid({
         {viewMode === 'grid' ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  {columns.map(column => (
-                    <th
-                      key={column.key}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                        column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                      }`}
-                      onClick={() => column.sortable && handleSort(column.key)}
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="columns" direction="horizontal">
+                  {(provided) => (
+                    <thead 
+                      className="bg-gray-50" 
+                      ref={provided.innerRef} 
+                      {...provided.droppableProps}
                     >
-                      <div className="flex items-center space-x-1">
-                        <span>{column.label}</span>
-                        {column.sortable && sortColumn === column.key && (
-                          sortDirection === 'asc' ? (
-                            <ChevronUpIcon className="h-4 w-4" />
-                          ) : (
-                            <ChevronDownIcon className="h-4 w-4" />
-                          )
-                        )}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+                      <tr>
+                        {columns.map((column, index) => (
+                          <Draggable 
+                            key={column.key} 
+                            draggableId={column.key} 
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <th
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                                  column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                                } ${snapshot.isDragging ? 'bg-gray-100' : ''}`}
+                                onClick={() => column.sortable && handleSort(column.key)}
+                              >
+                                <div className="flex items-center space-x-1">
+                                  <span>{column.label}</span>
+                                  {column.sortable && sortColumn === column.key && (
+                                    sortDirection === 'asc' ? (
+                                      <ChevronUpIcon className="h-4 w-4" />
+                                    ) : (
+                                      <ChevronDownIcon className="h-4 w-4" />
+                                    )
+                                  )}
+                                </div>
+                              </th>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </tr>
+                    </thead>
+                  )}
+                </Droppable>
+              </DragDropContext>
               <tbody className="bg-white divide-y divide-gray-200">
                 {data.map((item, index) => (
                   <tr key={index}>

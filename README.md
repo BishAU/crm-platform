@@ -15,6 +15,7 @@ This is a CRM platform built with Next.js, Prisma, and PostgreSQL.
 10. [Database Schema](#database-schema)
 11. [Nginx Configuration](#nginx-configuration)
 12. [SendGrid Integration](#sendgrid-integration)
+13. [API Response Patterns](#api-response-patterns)
 
 ## Project Overview
 The CRM Platform is a comprehensive customer relationship management system designed to manage various entities including:
@@ -50,16 +51,102 @@ app/api/
 ├── auth/              # Authentication endpoints
 ├── facilities/        # Facility management
 ├── observations/      # Observation tracking
-├── people/            # Person records
-├── politicians/       # Politician information
+├── people/           # Person records
+├── politicians/      # Politician information
 ├── water-authorities/ # Water authority data
-└── ...                # Other resource types
+└── ...               # Other resource types
 ```
 
 Each resource type has:
 - Collection endpoints (e.g., GET /api/facilities)
 - Individual resource endpoints (e.g., GET /api/facilities/[id])
 - Specialized operation endpoints (e.g., POST /api/import/process)
+
+## API Response Patterns
+The API follows consistent response patterns across all endpoints:
+
+### Count Endpoints
+When requesting counts (?count=true), all endpoints return:
+```json
+{
+  "count": number
+}
+```
+
+### List Endpoints
+For paginated lists, endpoints return:
+```json
+{
+  "items": Array<T>,
+  "page": number,
+  "totalPages": number,
+  "totalItems": number
+}
+```
+
+### Error Responses
+All error responses follow:
+```json
+{
+  "error": string,
+  "details": string (optional)
+}
+```
+
+### Import Responses
+Import endpoints return detailed results:
+```json
+{
+  "importedCount": number,
+  "totalRecords": number,
+  "validRecords": number,
+  "invalidRecords": number,
+  "skippedRecords": Array<{
+    "row": number,
+    "missingFields": string[]
+  }> (optional)
+}
+```
+
+## Import Methodology
+The platform supports bulk data import through CSV files. The import process follows these steps:
+
+1. **File Analysis**
+   - Analyze CSV structure using `POST /api/import/analyze-csv`
+   - Match CSV headers with database schema
+   - Validate data types and required fields
+   - Return available mappings and field requirements
+
+2. **Data Validation**
+   - Validate CSV structure against expected schema
+   - Check required fields and data types
+   - Handle special cases:
+     - Convert empty strings to null
+     - Parse boolean values ("true"/"false", "yes"/"no")
+     - Convert numeric strings to numbers
+     - Handle latitude/longitude as strings
+     - Validate foreign key relationships
+
+3. **Import Process**
+   - Process records in batches (100 records per batch)
+   - Skip duplicate records using `skipDuplicates: true`
+   - Track successful and failed imports
+   - Handle partial success scenarios
+   - Provide detailed error reporting
+
+4. **Error Handling**
+   - Track invalid records with row numbers
+   - Report missing required fields
+   - Handle database constraints:
+     - P2002: Unique constraint violations
+     - P2003: Foreign key constraint failures
+     - P2005: Invalid field values
+   - Support partial imports with 207 Multi-Status responses
+
+Key import files:
+- `app/api/import/route.ts` - Main import endpoint
+- `app/api/import/analyze-csv/route.ts` - CSV analysis endpoint
+- `scripts/import-csv-data.js` - CLI import script
 
 ## Database Configuration
 The platform uses PostgreSQL with Prisma ORM:
@@ -115,65 +202,8 @@ Key test files:
 - `tests/dashboard.test.tsx` - Dashboard component tests
 - `tests/api/` - API endpoint tests
 
-## Import Methodology
-The platform supports bulk data import through CSV files. The import process follows these steps:
-
-1. **File Validation**
-   - Validate CSV structure against expected schema
-   - Check required fields and data types
-   - Verify file size and row count limits
-
-2. **Data Processing**
-   - Parse CSV using fast-csv
-   - Transform data to match database schema
-   - Handle special cases (e.g., date formats, null values)
-
-3. **Database Operations**
-   - Use Prisma transactions for atomic operations
-   - Batch inserts for performance
-   - Handle duplicate detection and conflict resolution
-
-4. **Error Handling**
-   - Detailed error logging
-   - Retry mechanism for transient failures
-   - Partial success reporting
-
-Key import files:
-- `app/api/import/route.ts` - Main import endpoint
-- `lib/importUtils.ts` - Import utilities
-- `scripts/import-csv-data.js` - CLI import script
-
 ## Database Schema
-The database schema is defined in `prisma/schema.prisma` and includes the following key models:
-
-```prisma
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Facility {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        FacilityType
-  location    String
-  observations Observation[]
-}
-
-model Observation {
-  id          Int      @id @default(autoincrement())
-  facilityId  Int
-  facility    Facility @relation(fields: [facilityId], references: [id])
-  recordedAt  DateTime
-  values      Json
-}
-```
-
-Key relationships:
+The database schema is defined in `prisma/schema.prisma` and includes proper relationships between models. Key relationships:
 - One-to-many: Facility → Observations
 - Many-to-many: Users → Roles
 - Polymorphic: Notes → Various entities

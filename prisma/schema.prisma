@@ -17,11 +17,15 @@ model User {
   emailVerified        DateTime?
   image                String?
   password             String?
-  refreshToken         String?         @db.Text // Added for JWT refresh token
+  refreshToken         String?         @db.Text
+  isAdmin              Boolean         @default(false)
+  // Relations
   accounts             Account[]
   sessions             Session[]
-  isAdmin              Boolean         @default(false)
-  // New fields from people.csv
+  facilities           Facility[]
+  supportTickets       SupportTicket[]
+  marketingLists       MarketingList[]
+  // User profile fields
   abn                  String?
   address1             String?
   annualReportPrepared Boolean?        @default(false)
@@ -68,9 +72,6 @@ model User {
   websiteAddress       String?
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
-  MarketingList        MarketingList[]
-  facilities           Facility[]
-  supportTickets       SupportTicket[]
 }
 
 model Account {
@@ -114,19 +115,20 @@ model Outfall {
   contact_email         String?
   contact_name          String?
   indigenousNation      String?
-  landCouncil           String?
+  landCouncil           LandCouncil?        @relation(fields: [landCouncilId], references: [id])
+  landCouncilId         String?
   latitude              String?
   longitude             String?
   state                 String?
   type                  String?
-  outfallName           String? // New field from CSV
+  outfallName           String?
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
   postcodes             OutfallPostcode[]
   observations          OutfallObservation[]
-  waterAuthority        WaterAuthority?      @relation(fields: [waterAuthorityId], references: [id], name: "WaterAuthorityToOutfalls")
+  waterAuthority        WaterAuthority?      @relation(fields: [waterAuthorityId], references: [id])
   waterAuthorityId      String?
-  indigenousCommunity   IndigenousCommunity? @relation(fields: [indigenousCommunityId], references: [id], name: "IndigenousCommunityToOutfalls")
+  indigenousCommunity   IndigenousCommunity? @relation(fields: [indigenousCommunityId], references: [id])
   indigenousCommunityId String?
 }
 
@@ -137,7 +139,7 @@ model OutfallPostcode {
   radius    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  outfall   Outfall  @relation(fields: [outfallId], references: [id])
+  outfall   Outfall  @relation(fields: [outfallId], references: [id], onDelete: Cascade)
 }
 
 model Politician {
@@ -147,7 +149,6 @@ model Politician {
   party          String?
   position       String?
   state          String?
-  // New fields from politicians.csv
   address        String?
   city           String?
   eoAddress      String?
@@ -179,22 +180,22 @@ model Politician {
 }
 
 model MarketingList {
-  id        String                @id @default(cuid())
+  id        String                 @id @default(cuid())
   name      String
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
   entities  MarketingListEntity[]
-  creatorId String?
   creator   User?                 @relation(fields: [creatorId], references: [id])
+  creatorId String?
 }
 
 model MarketingListEntity {
-  id              String                @id @default(cuid())
+  id              String               @id @default(cuid())
   marketingListId String
   entityType      String
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  marketingList   MarketingList         @relation(fields: [marketingListId], references: [id])
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  marketingList   MarketingList        @relation(fields: [marketingListId], references: [id], onDelete: Cascade)
   filters         MarketingListFilter[]
 }
 
@@ -205,7 +206,7 @@ model MarketingListFilter {
   operator              String
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
-  marketingListEntity   MarketingListEntity @relation(fields: [marketingListEntityId], references: [id])
+  marketingListEntity   MarketingListEntity @relation(fields: [marketingListEntityId], references: [id], onDelete: Cascade)
 }
 
 model Facility {
@@ -217,7 +218,7 @@ model Facility {
   sector     String?
   suburb     String?
   type       String?
-  name       String? // Added for Facility Name
+  name       String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   creator    User     @relation(fields: [creatorId], references: [id])
@@ -229,10 +230,10 @@ model IndigenousCommunity {
   name             String    @unique
   region           String?
   population       Int?
-  waterAuthorities String? // Added for Related Water Authorities
+  waterAuthorities WaterAuthority[]
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  outfalls         Outfall[] @relation("IndigenousCommunityToOutfalls")
+  outfalls         Outfall[]
 }
 
 model OutfallObservation {
@@ -242,7 +243,7 @@ model OutfallObservation {
   flow      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  outfall   Outfall  @relation(fields: [outfallId], references: [id])
+  outfall   Outfall  @relation(fields: [outfallId], references: [id], onDelete: Cascade)
 }
 
 model SupportTicket {
@@ -250,33 +251,31 @@ model SupportTicket {
   title        String
   description  String?
   status       String?
+  assignedTo   User?    @relation(fields: [assignedToId], references: [id])
   assignedToId String?
-  assignedTo   User?    @relation(fields: [assignedToId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
-// New models from CSV files
-
 model LandCouncil {
-  id           String   @id @default(cuid())
-  name         String?  @unique
+  id           String    @id @default(cuid())
+  name         String?   @unique
   email        String?
-  lgas         String? // Local Government Areas
-  outfallCount Int? // Number of outfalls
-  outfalls     String? // Outfall references
+  lgas         String?
+  outfallCount Int?
+  outfalls     Outfall[]
   phone        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model WaterAuthority {
-  id                    String    @id @default(cuid())
-  name                  String    @unique
-  indigenousCommunities String? // Associated Indigenous Communities
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  outfalls              Outfall[] @relation("WaterAuthorityToOutfalls")
+  id                    String               @id @default(cuid())
+  name                  String               @unique
+  indigenousCommunities IndigenousCommunity[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  outfalls              Outfall[]
 }
 
 model Observation {

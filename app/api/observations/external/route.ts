@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@lib/prisma';
 
 // CORS headers for external access
 const corsHeaders = {
@@ -8,11 +8,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-export async function OPTIONS() {
-  return NextResponse.json({}, { headers: corsHeaders });
-}
 
 export async function POST(req: NextRequest) {
+  
+  const config = {
+    api: {
+      bodyParser: false
+    }
+  };
+
   try {
     const formData = await req.formData();
     
@@ -103,10 +107,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-// Configure the API route
-export const config = {
-  api: {
-    bodyParser: false
-  }
-};

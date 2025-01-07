@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@lib/*": ["./lib/*"],
+      "@components/*": ["./components/*"],
+      "@components/DetailView": ["./components/DetailView/index.tsx"],
+      "@components/AuthenticatedLayout": ["./components/AuthenticatedLayout.tsx"],
+      "@components/DataGrid": ["./components/DataGrid/index.tsx"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

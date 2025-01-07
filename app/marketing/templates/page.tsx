@@ -1,272 +1,65 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import AuthenticatedLayout from '../../components/AuthenticatedLayout';
-import { v4 as uuidv4 } from 'uuid';
-import { ChevronLeft, ChevronRight, Grid, List, Search, ArrowUpDown, Edit } from 'lucide-react';
-import Link from 'next/link';
+import { listDesigns } from '../../../lib/sendgrid';
 
-interface Column {
-  field: string;
-  header: string;
-  sortable?: boolean;
-  hidden?: boolean;
-  format?: (value: any) => string;
-}
-
-interface PaginationInfo {
-  currentPage: number;
-  totalPages: number;
-  pageSize?: number;
-  totalItems?: number;
-}
-
-
-interface MarketingTemplate {
+interface Template {
   id: string;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
-export default function MarketingTemplatesPage() {
-  const searchParams = useSearchParams();
-  const initialView = (searchParams?.get('view') as 'grid' | 'list') || 'grid';
+interface DesignsResponse {
+  designs: Template[];
+}
 
-    const [templates, setTemplates] = useState<MarketingTemplate[]>([
-    {
-      id: uuidv4(),
-      name: 'Mock Template 1',
-      description: 'This is a mock marketing template.',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      name: 'Mock Template 2',
-      description: 'This is another mock marketing template.',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    },
-  ]);
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(templates.length);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [view, setView] = useState<'grid' | 'list'>(initialView);
-    const [columns, setColumns] = useState<Column[]>([
-    { field: 'name', header: 'Name', sortable: true },
-    { field: 'description', header: 'Description', sortable: true },
-    { field: 'createdAt', header: 'Created At', hidden: true },
-    { field: 'updatedAt', header: 'Updated At', hidden: true },
-    { field: 'id', header: 'ID', hidden: true },
-  ]);
-
-
-  const handleAddTemplate = () => {
-    const newTemplate: MarketingTemplate = {
-      id: uuidv4(),
-      name: 'New Template',
-      description: 'New marketing template description',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setTemplates([...templates, newTemplate]);
-    setTotalItems(templates.length + 1);
-  };
-
+export default function TemplatesPage() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setTotalItems(templates.length);
-  }, [templates]);
-
-
-  const handleSave = async (updatedRecord: Record<string, any>) => {
-    const updatedTemplates = templates.map((template) =>
-      template.id === updatedRecord.id ? { ...template, ...updatedRecord, updatedAt: new Date().toISOString() } : template
-    );
-    setTemplates(updatedTemplates);
-  };
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    setCurrentPage(1);
-  };
-
-  const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSortField(field);
-    setSortOrder(order);
-  };
-
-    const handleColumnReorder = (field: string) => {
-        const newColumns = [...columns];
-        const index = newColumns.findIndex(col => col.field === field);
-        if (index > -1) {
-            const column = newColumns.splice(index, 1)[0];
-            newColumns.push(column);
-            setColumns(newColumns);
+    async function fetchTemplates() {
+      try {
+        const response = await listDesigns() as DesignsResponse;
+        if (response) {
+          setTemplates(response.designs);
+        } else {
+          setError('Failed to fetch templates');
         }
-    };
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
+    fetchTemplates();
+  }, []);
 
-  const renderGridView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {templates.map((item, index) => (
-        <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="aspect-video w-full relative">
-            <div className="p-4">
-              {columns.filter(col => !col.hidden && col.field !== 'media_images' && col.field !== 'media_video').map((column) => (
-                <div key={column.field} className="mb-2">
-                  <span className="font-semibold text-ocean-900">{column.header}: </span>
-                  <span className="text-ocean-800">
-                    {column.format ? column.format(item[column.field as keyof MarketingTemplate]) : item[column.field as keyof MarketingTemplate]}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <Link
-              href={`/marketing/templates/${item.id}`}
-              className="absolute top-2 right-2 p-2 bg-white/80 text-gray-500 hover:text-blue-600 hover:bg-white rounded-full shadow-sm"
-            >
-              <Edit className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  if (loading) {
+    return <div>Loading templates...</div>;
+  }
 
-  const renderListView = () => (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="w-10 px-4 py-3"></th>
-            {columns.filter(col => !col.hidden).map((column) => (
-              <th
-                key={column.field}
-                scope="col"
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                  column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                }`}
-                onClick={() => column.sortable && handleSort(column.field, sortOrder === 'asc' ? 'desc' : 'asc')}
-              >
-                <div className="flex items-center space-x-1">
-                  <span>{column.header}</span>
-                  {column.sortable && (
-                    <ArrowUpDown className={`w-4 h-4 ${
-                      sortField === column.field ? 'text-blue-600' : 'text-gray-400'
-                    }`} />
-                  )}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {templates.map((item, index) => (
-            <tr key={index}>
-              <td className="w-10 px-4 py-4">
-                <Link
-                  href={`/marketing/templates/${item.id}`}
-                  className="text-gray-500 hover:text-blue-600"
-                >
-                  <Edit className="w-4 h-4" />
-                </Link>
-              </td>
-              {columns.filter(col => !col.hidden).map((column) => (
-                <td key={column.field} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {column.format ? column.format(item[column.field as keyof MarketingTemplate]) : item[column.field as keyof MarketingTemplate]}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-
-
-  const handleViewChange = (newView: 'grid' | 'list') => {
-    setView(newView);
-  };
-
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
-    <AuthenticatedLayout>
-      <div className="p-8">
-        <h1 className="text-2xl font-bold text-ocean-900 mb-6">Marketing Templates</h1>
-        <button onClick={handleAddTemplate} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
-          Add New Template
-        </button>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleViewChange('grid')}
-                  className={`p-2 rounded ${
-                    view === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Grid className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleViewChange('list')}
-                  className={`p-2 rounded ${
-                    view === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <List className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-              </div>
-            </div>
-            {totalPages > 1 && (
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
-                >
-                  <ChevronLeft className="w-5 h-5 text-black font-bold" />
-                </button>
-                <span className="text-sm text-gray-600">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
-                >
-                  <ChevronRight className="w-5 h-5 text-black font-bold" />
-                </button>
-              </div>
-            )}
-          </div>
-          {loading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            view === 'grid' ? renderGridView() : renderListView()
-          )}
-        </div>
-      </div>
-    </AuthenticatedLayout>
+    <div>
+      <h1>SendGrid Templates</h1>
+      {templates.length === 0 ? (
+        <div>No templates found.</div>
+      ) : (
+        <ul>
+          {templates.map((template) => (
+            <li key={template.id}>
+              <h2>{template.name}</h2>
+              <p>{template.description}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
