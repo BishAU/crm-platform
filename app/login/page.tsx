@@ -3,16 +3,16 @@
 import { useState } from 'react';
 import './new-styles.css';
 import Logo from '../../components/Logo';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
 export default function NewLoginPage() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     const emailElement = e.currentTarget.elements.namedItem('email');
     const passwordElement = e.currentTarget.elements.namedItem('password');
@@ -20,18 +20,29 @@ export default function NewLoginPage() {
     const email = emailElement && 'value' in emailElement ? emailElement.value : '';
     const password = passwordElement && 'value' in passwordElement ? passwordElement.value : '';
 
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      console.log('Attempting sign in...');
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
 
-    setLoading(false);
+      console.log('Sign in result:', result);
 
-    if (result?.ok) {
-      router.push('/dashboard');
-    } else {
-      alert('Login failed');
+      if (result?.ok) {
+        console.log('Sign in successful, redirecting to dashboard...');
+        // Use window.location for a full page navigation
+        window.location.href = '/dashboard';
+      } else {
+        console.error('Sign in failed:', result?.error);
+        setError(result?.error || 'Login failed');
+      }
+    } catch (err) {
+      console.error('Sign in error:', err);
+      setError('An error occurred during sign in');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +56,11 @@ export default function NewLoginPage() {
             <h2>Sign in to your account</h2>
           </div>
           <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="text-red-500 text-sm mb-4 text-center">
+                {error}
+              </div>
+            )}
             <input
               type="email"
               name="email"
@@ -59,7 +75,11 @@ export default function NewLoginPage() {
               className="new-login-input"
               required
             />
-            <button type="submit" disabled={loading}>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors"
+            >
               {loading ? 'Logging in...' : 'Sign in'}
             </button>
           </form>

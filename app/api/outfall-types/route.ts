@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../lib/prisma';
 import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
 
     const total = totalResult[0]?.count || 0;
 
-    const items = typesWithCounts.map(item => ({
+    const items = typesWithCounts.map((item: { type: string, count: number }) => ({
       id: item.type, // Use type as id since it's unique
       name: item.type,
       description: `Type of outfall (${item.count} outfalls)`,
