@@ -20,10 +20,10 @@
     ],
     "paths": {
       "@lib/*": ["./lib/*"],
-      "@components/*": ["./components/*"],
-      "@components/DetailView": ["./components/DetailView/index.tsx"],
-      "@components/AuthenticatedLayout": ["./components/AuthenticatedLayout.tsx"],
-      "@components/DataGrid": ["./components/DataGrid/index.tsx"]
+      "@components/*": ["./app/components/*"],
+      "@components/DetailView": ["./app/components/DetailView.tsx"],
+      "@components/AuthenticatedLayout": ["./app/components/AuthenticatedLayout.tsx"],
+      "@components/DataGrid": ["./app/components/DataGrid.tsx"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

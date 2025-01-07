@@ -20,7 +20,6 @@ const nextConfig = {
       },
     ],
   },
-  // Middleware configuration
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -35,4 +34,17 @@ const nextConfig = {
   },
   poweredByHeader: false,
   compress: true,
+};
+
+module.exports = {
+  ...nextConfig,
+  // Configure module path aliases
+  async rewrites() {
+    return [
+      {
+        source: '/@components/:path*',
+        destination: '/components/:path*',
+      },
+    ];
+  },
 };
