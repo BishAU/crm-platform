@@ -2,6 +2,8 @@
 const nextConfig = {
   experimental: {
     outputFileTracingRoot: process.env.NODE_PATH || process.cwd(),
+    // Enable more stable handling of build output
+    outputStandalone: true,
   },
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://crm.myinvoices.today',
@@ -28,6 +30,12 @@ const nextConfig = {
     }
     return config;
   },
+  // Improve caching behavior
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
+  poweredByHeader: false,
+  compress: true,
 };
 
 export default nextConfig;
