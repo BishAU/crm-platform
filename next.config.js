@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const config = {
   output: 'standalone',
   experimental: {
     outputFileTracingRoot: process.env.NODE_PATH || process.cwd(),
@@ -34,10 +34,6 @@ const nextConfig = {
   },
   poweredByHeader: false,
   compress: true,
-};
-
-module.exports = {
-  ...nextConfig,
   // Configure module path aliases
   async rewrites() {
     return [
@@ -48,3 +44,5 @@ module.exports = {
     ];
   },
 };
+
+export default config;
